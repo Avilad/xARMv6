@@ -1,9 +1,18 @@
 This is a port of xv6 to ARM. No, there is not an xARMv6-1.0.
 
-* tools 
+* Tools 
 sudo apt-get install gcc-arm-none-eabi
 sudo apt-get install gdb-multiarch
 sudo apt-get install qemu-system-arm (You may already have this for building xv6
 on x86).
 
 
+* Todo
+- Rewrite the bootloader for ARM.
+- Rewrite basic I/O via UART.
+- Rewrite x86 assembly components of xv6.
+  - Rewrite assembly intrinsics.
+  - Rewrite anything use assembly intrinsics (mainly I/O and virtual memory).
+  - Rewrite system calls.
+- Rewrite virtual memory systems.
+- Rewrite file I/O.
