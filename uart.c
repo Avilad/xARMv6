@@ -1,23 +1,6 @@
-// Intel 8250 serial port (UART).
+// Initialization for the UART devices in ARM
 
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "traps.h"
-#include "spinlock.h"
-#include "sleeplock.h"
-#include "fs.h"
-#include "file.h"
-#include "mmu.h"
-#include "proc.h"
-#include "x86.h"
-
-#define COM1    0x3f8
-
-static int uart;    // is there a uart?
-
-void
-uartinit(void)
+void init_uart1(void)
 {
   char *p;
 
