@@ -10,9 +10,10 @@ OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
 # -march=armv6 tells gcc to generate code for that exact kind of CPU (i.e. what the RP runs)
-CFLAGS = -march=armv6 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -Werror -I.
+#@todo if something is broken try changing back to armv6
+CFLAGS = -march=armv8 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -Werror -I.
 LDFLAGS = -L.
-ASFLAGS = -march=armv6 
+ASFLAGS = -march=armv8
 
 LIBGCC = $(shell $(CC) -print-libgcc-file-name)
 
