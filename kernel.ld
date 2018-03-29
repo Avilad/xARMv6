@@ -1,68 +1,78 @@
-/* Simple linker script for the JOS kernel.
-   See the GNU ld 'info' manual ("info ld") to learn the syntax. */
-
-OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
-OUTPUT_ARCH(i386)
+OUTPUT_FORMAT("elf32-littlearm")
+OUTPUT_ARCH(arm)
 ENTRY(_start)
+
+ENTRY_SVC_STACK_SIZE = 0x1000;
 
 SECTIONS
 {
-	/* Link the kernel at this address: "." means the current address */
-        /* Must be equal to KERNLINK */
-	. = 0x80100000;
+  /* the entry point, before enabling paging. The code to enable paing
+   needs to have the same virtual/physical address. entry.S and start.c
+   run in this initial setting.*/
+  . = 0x10000;
+  .start_sec : {
+    build/entry.o(.text)
+    build/start.o(.text .text.*)
 
-	.text : AT(0x100000) {
-		*(.text .stub .text.* .gnu.linkonce.t.*)
-	}
+    build/entry.o(.rodata .rodata.*)
+    build/start.o(.rodata .rodata.*)
 
-	PROVIDE(etext = .);	/* Define the 'etext' symbol to this value */
+    build/entry.o(.data .data.*)
+    build/start.o(.data .data.*)
 
-	.rodata : {
-		*(.rodata .rodata.* .gnu.linkonce.r.*)
-	}
+    PROVIDE(edata_entry = .);
 
-	/* Include debugging information in kernel memory */
-	.stab : {
-		PROVIDE(__STAB_BEGIN__ = .);
-		*(.stab);
-		PROVIDE(__STAB_END__ = .);
-		BYTE(0)		/* Force the linker to allocate space
-				   for this section */
-	}
+    build/entry.o(.bss .bss.* COMMON)
+    build/start.o(.bss .bss.* COMMON)
 
-	.stabstr : {
-		PROVIDE(__STABSTR_BEGIN__ = .);
-		*(.stabstr);
-		PROVIDE(__STABSTR_END__ = .);
-		BYTE(0)		/* Force the linker to allocate space
-				   for this section */
-	}
+    /*define a stack for the entry*/
+    . = ALIGN(0x1000);
+    . += ENTRY_SVC_STACK_SIZE;
 
-	/* Adjust the address for the data segment to the next page */
-	. = ALIGN(0x1000);
+    PROVIDE (svc_stktop = .);
 
-	/* Conventionally, Unix linkers provide pseudo-symbols
-	 * etext, edata, and end, at the end of the text, data, and bss.
-	 * For the kernel mapping, we need the address at the beginning
-	 * of the data section, but that's not one of the conventional
-	 * symbols, because the convention started before there was a
-	 * read-only rodata section between text and data. */
-	PROVIDE(data = .);
+    /* define the kernel page table, must be 16K and 16K-aligned*/
+    . = ALIGN(0x4000);
+    PROVIDE (_kernel_pgtbl = .);
+    . += 0x4000;
 
-	/* The data segment */
-	.data : {
-		*(.data)
-	}
+    /* we also need a user page table*/
+    PROVIDE (_user_pgtbl = .);
+    . += 0x1000;
 
-	PROVIDE(edata = .);
+    PROVIDE(end_entry = .);
+  }
 
-	.bss : {
-		*(.bss)
-	}
+  /*the kernel executes at the higher 2GB address space, but loaded
+   at the lower memory (0x20000)*/
+  . = 0x80020000;
 
-	PROVIDE(end = .);
+  .text : AT(0x20000){
+    *(.text .text.* .gnu.linkonce.t.*)
+  }
 
-	/DISCARD/ : {
-		*(.eh_frame .note.GNU-stack)
-	}
+  PROVIDE(etext = .);	/* Define the 'etext' symbol to this value */
+
+  .rodata : {
+    *(.rodata .rodata.* .gnu.linkonce.r.*)
+  }
+
+  /* aligned the data to a (4K) page, so it can be assigned
+   different protection than the code*/
+  . = ALIGN(0x1000);
+
+  PROVIDE (data_start = .);
+
+  .data : {
+    *(.data .data.*)
+  }
+
+  PROVIDE (edata = .);
+
+  .bss : {
+    *(.bss .bss.* COMMON)
+  }
+
+  . = ALIGN(0x1000);
+  PROVIDE (end = .);
 }

@@ -1,0 +1,9 @@
+This is a port of xv6 to ARM. No, there is not an xARMv6-1.0.
+
+* tools 
+sudo apt-get install gcc-arm-none-eabi
+sudo apt-get install gdb-multiarch
+sudo apt-get install qemu-system-arm (You may already have this for building xv6
+on x86).
+
+
