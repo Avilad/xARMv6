@@ -1,60 +1,62 @@
 // Initialization for the UART devices in ARM
+#include "MemoryMappedIO.h"
+#include "types.h"
+void uart_init() {
+    // UART initialization
+    *AUX_ENABLE |= 1;      // enable UART1, AUX mini uart (console)
+    *AUX_MU_IER = 0;
+    *AUX_MU_CNTL = 0;
+    *AUX_MU_LCR = 3;       // 8 bits
+    *AUX_MU_MCR = 0;
+    *AUX_MU_IER = 0;
+    *AUX_MU_IIR = 0xc6;    // disable interrupts
+    *AUX_MU_BAUD = 270;    // 115200 baud
 
-void init_uart1(void)
-{
-  char *p;
+	// Map UART1 to GPIO 14/15 (UART transmit/receive data)
+    uint32 func_sel_reg;
+    func_sel_reg = *GPFSEL1;
+    func_sel_reg &= ~(GPIO14 | GPIO15); 
+    func_sel_reg |= (2<<12)|(2<<15);    // alt5
+    *GPFSEL1 = func_sel_reg;
 
-  // Turn off the FIFO
-  outb(COM1+2, 0);
-
-  // 9600 baud, 8 data bits, 1 stop bit, parity off.
-  outb(COM1+3, 0x80);    // Unlock divisor
-  outb(COM1+0, 115200/9600);
-  outb(COM1+1, 0);
-  outb(COM1+3, 0x03);    // Lock divisor, 8 data bits.
-  outb(COM1+4, 0);
-  outb(COM1+1, 0x01);    // Enable receive interrupts.
-
-  // If status is 0xFF, no serial port.
-  if(inb(COM1+5) == 0xFF)
-    return;
-  uart = 1;
-
-  // Acknowledge pre-existing interrupt conditions;
-  // enable interrupts.
-  inb(COM1+2);
-  inb(COM1+0);
-  ioapicenable(IRQ_COM1, 0);
-
-  // Announce that we're here.
-  for(p="xv6...\n"; *p; p++)
-    uartputc(*p);
+	// Set up GPPUD for GPIO 14/15
+	// Reference: https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf, page 101
+    *GPPUD = 0;            
+    uint32 counter;
+    counter=150; while(counter--) { asm volatile("nop"); }
+    *GPPUDCLK0 = (1<<14)|(1<<15);
+    counter=150; while(counter--) { asm volatile("nop"); }
+    *GPPUDCLK0 = 0;        // flush GPIO setup
+    *AUX_MU_CNTL = 3;      // enable Tx, Rx
 }
 
-void
-uartputc(int c)
-{
-  int i;
-
-  if(!uart)
-    return;
-  for(i = 0; i < 128 && !(inb(COM1+5) & 0x20); i++)
-    microdelay(10);
-  outb(COM1+0, c);
+// Pushes a byte through the UART port
+void uart_send_char(char data) {
+	// Wait until status register says we can accept data
+    do {
+		asm volatile("nop");
+	} while (!(*AUX_MU_LSR & LSR_CAN_ACCEPT));
+    *AUX_MU_IO = data;
 }
 
-static int
-uartgetc(void)
-{
-  if(!uart)
-    return -1;
-  if(!(inb(COM1+5) & 0x01))
-    return -1;
-  return inb(COM1+0);
+char uart_get_char() {
+	// Wait until status register says there's something in the buffer
+    do {
+		asm volatile("nop");
+	} while (!(*AUX_MU_LSR & LSR_DATA_READY));
+	
+	// Read it
+    char data = (char)(*AUX_MU_IO & IO_REG_DATA_MASK);
+
+	// Carraige return to newline
+    return data == '\r' ? '\n' : data;
 }
 
-void
-uartintr(void)
-{
-  consoleintr(uartgetc);
+// Send a null-terminated string
+void uart_put_str2(char* s) {
+    while(*s) {
+        /* convert newline to carrige return + newline */
+        if(*s=='\n') { uart_send_char('\r'); }
+        uart_send_char(*s++);
+    }
 }
