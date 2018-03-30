@@ -7,27 +7,28 @@
 .global _start
 
 _start:
-	// Stop all cores that aren't our main core
-	mrs x1, mpidr_el1 //x1 <- cpu id
-	and x1, x1, #3    //x1 <- x1 & cpu number bit
-	cbz x1, continue
-loop_forever:
-	wfe
-	b loop_forever
-continue:
-	//On main core
+// 	// Stop all cores that aren't our main core
+// 	mrs r1, mpidr_el1 //x1 <- cpu id
+// 	and x1, x1, #3    //x1 <- x1 & cpu number bit
+// 	cbz x1, continue
+// loop_forever:
+// 	wfe
+// 	b loop_forever
+// continue:
+// 	//On main core
 	//Setup stack
-	ldr x1, =_start
-	mov sp, x1
+	ldr r1, =_start
+	mov sp, r1
 
 	//Clear bss section of our loaded elf
-	ldr x1, =__bss_start
-	ldr w2, =__bss_size
+	ldr r1, =__bss_start
+	ldr r2, =__bss_size
 clear_bss_top:
-	cbz w2, clear_bss_done
-	str xzr, [x1], #8 //Zero eight bytes
-	sub w2, w2, #1
-	cbnz w2, clear_bss_top
+	ldr r3, =0
+	str r3, [r1], #8 //Zero eight bytes
+	sub r2, r2, #1
+	cmp r2, r2
+	beq clear_bss_top
 clear_bss_done:
 
 	bl c_main        //Jump into C, does not return
