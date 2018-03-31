@@ -22,24 +22,23 @@ LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-# -march=armv6 tells gcc to generate code for that exact kind of CPU (i.e. what the RP runs)
-# If something is broken try changing back to armv6
-CFLAGS = -march=armv8-a -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -Werror -I -c.
-LDFLAGS = -L.
-ASFLAGS = -march=armv8-a
+CFLAGS = -march=armv8-a -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
+LDFLAGS = -L
+ASFLAGS = -march=armv8-a -fno-pic -c
 
 all: kernel.elf
+
+build/entry.o: entry.S
+	mkdir -p build
+	$(CC) $< $(ASFLAGS) -o $@
 
 build/%.o: %.c
 	mkdir -p build
 	$(CC) $< $(CFLAGS) -o $@
 
-entry: entry.S
-	$(CC) $< $(CFLAGS) -fno-pic -nostdinc -I. -c entry.S
-
-KERN_OBJS = $(OBJS) 
-kernel.elf: $(addprefix build/,$(KERN_OBJS)) entry kernel.ld #build/fs.img build/initcode
-	$(LD) -T kernel.ld  -o kernel.elf $(addprefix build/,$(KERN_OBJS)) entry.S
+KERN_OBJS = $(OBJS) entry.o
+kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld #build/fs.img build/initcode
+	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS))
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 

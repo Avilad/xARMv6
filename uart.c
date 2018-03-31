@@ -1,6 +1,7 @@
 // Initialization for the UART devices in ARM
 #include "MemoryMappedIO.h"
 #include "types.h"
+
 void uart_init() {
     // UART initialization
     *AUX_ENABLE |= 1;      // enable UART1, AUX mini uart (console)
@@ -23,9 +24,9 @@ void uart_init() {
 	// Reference: https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf, page 101
     *GPPUD = 0;            
     uint32 counter;
-    counter=150; while(counter--) { asm volatile("nop"); }
+    counter = 150; while(counter--) { asm volatile("nop"); }
     *GPPUDCLK0 = (1<<14)|(1<<15);
-    counter=150; while(counter--) { asm volatile("nop"); }
+    counter = 150; while(counter--) { asm volatile("nop"); }
     *GPPUDCLK0 = 0;        // flush GPIO setup
     *AUX_MU_CNTL = 3;      // enable Tx, Rx
 }
@@ -53,10 +54,10 @@ char uart_get_char() {
 }
 
 // Send a null-terminated string
-void uart_put_str2(char* s) {
-    while(*s) {
+void uart_put_str(char* s) {
+	while (*s) {
         /* convert newline to carrige return + newline */
-        if(*s=='\n') { uart_send_char('\r'); }
+        if(*s == '\n') { uart_send_char('\r'); }
         uart_send_char(*s++);
     }
 }
