@@ -1,9 +1,10 @@
 //Functions for reading and writing ARM mailboxes
 
-#include "MemoryMappedIO.h"
+#include "types.h"
+#include "mem_mapped_io.h"
 
 //Is the mailbox message a request or a response to a previous request
-#define MBOX_REQUEST    
+#define MBOX_REQUEST    0
 
 //Channel definitions
 #define MBOX_CH_POWER   0
@@ -17,8 +18,10 @@
 #define MBOX_CH_PROP    8
 
 //@todo document, add more of these probably
+
 #define MBOX_TAG_GETSERIAL      0x10004
-#define MBOX_TAG_LAST           0
+#define MBOX_TAG_SETCLKRATE     0x38002
+#define MBOX_TAG_LAST           0 //Null terminator for mailbox messages
 
 //Mailbox message buffer, must be 16 byte aligned
 extern volatile uint32 mailbox_message_buffer[36];

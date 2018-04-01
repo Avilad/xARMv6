@@ -1,5 +1,6 @@
-OBJS = main.o \
-       uart.o \
+OBJS = main.o    \
+       uart0.o   \
+       mailbox.o \
 
 QEMU = qemu-system-arm
 
