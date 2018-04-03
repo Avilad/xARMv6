@@ -8,7 +8,6 @@ GDBPORT = 1234
 
 QEMUOPTS = -M versatilepb \
            -m 128 \
-           -cpu arm1176 \
            -nographic \
            -kernel kernel.elf
 
@@ -16,7 +15,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
                       then echo "-gdb tcp::$(GDBPORT)"; \
                       else echo "-s -p $(GDBPORT)"; fi)
 
-CROSSCOMPILE := arm-none-eabi-
+CROSSCOMPILE := aarch64-elf-
 CC = $(CROSSCOMPILE)gcc
 AS = $(CROSSCOMPILE)as
 LD = $(CROSSCOMPILE)ld
