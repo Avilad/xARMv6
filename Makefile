@@ -1,31 +1,30 @@
-OBJS = main.o    \
-       uart0.o   \
-       mailbox.o \
+# Toolchain flags
+KERN_OBJS = entry.o   \
+            main.o    \
+            uart0.o   \
+            mailbox.o \
 
-QEMU = qemu-system-arm
+QEMU = qemu-system-arm-2.11.0
 
-GDBPORT = 1234
-
-QEMUOPTS = -M versatilepb \
-           -m 128 \
+QEMUOPTS = -M raspi2 \
+           -m 256 \
+           -serial mon:stdio \
            -nographic \
            -kernel kernel.elf
 
-QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
-                      then echo "-gdb tcp::$(GDBPORT)"; \
-                      else echo "-s -p $(GDBPORT)"; fi)
-
-CROSSCOMPILE := aarch64-elf-
+CROSSCOMPILE := arm-none-eabi-
 CC = $(CROSSCOMPILE)gcc
 AS = $(CROSSCOMPILE)as
 LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-CFLAGS = -march=armv8-a -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
+CFLAGS = -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
 LDFLAGS = -L
-ASFLAGS = -march=armv8-a -fno-pic -c
+ASFLAGS = -fno-pic -c
 
+
+# Scripts for object files and kernel
 all: kernel.elf
 
 build/entry.o: entry.S
@@ -36,36 +35,26 @@ build/%.o: %.c
 	mkdir -p build
 	$(CC) $< $(CFLAGS) -o $@
 
-KERN_OBJS = $(OBJS) entry.o
-kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld #build/fs.img build/initcode
+kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld 
 	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS))
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
+
+# QEMU run scripts
 qemu: kernel.elf
 	@clear
 	@echo "Press Ctrl-A and then X to terminate QEMU session\n"
 	$(QEMU) $(QEMUOPTS)
 
-qemu-gdb: kernel.elf
-	@echo "*** Now run 'gdb'." 1>&2
-	$(QEMU) -serial mon:stdio $(QEMUOPTS) -S $(QEMUGDB)
+# -S means you must run 'c' in GDB to run first instruction
+# -s is shorthand for -gdb tcp::1234
+qemu-gdb: .gdbinit
+	@echo "*** Now run 'gdb-multiarch'." 1>&2
+	$(QEMU) $(QEMUOPTS) -S -s
 
-# INITCODE_OBJ = initcode.o
-# $(addprefix build/,$(INITCODE_OBJ)): initcode.S
-# 	$(call build-directory)
-# 	$(call AS_WITH, -nostdinc -I.)
 
-# #initcode is linked into the kernel, it will be used to craft the first process
-# build/initcode: $(addprefix build/,$(INITCODE_OBJ))
-# 	$(call LINK_INIT, -N -e start -Ttext 0)
-# 	$(call OBJCOPY_INIT)
-# 	$(OBJDUMP) -S $< > initcode.asm
-
-#build/fs.img:
-	#make -C tools
-	#make -C usr
-
+# Utility scripts
 clean: 
 	rm -rf build
-	rm -f *.o *.d *.asm *.sym 
+	rm -f *.o *.d *.asm *.sym *.elf
