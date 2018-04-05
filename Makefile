@@ -1,7 +1,7 @@
 # Toolchain flags
 KERN_OBJS = entry.o   \
             main.o    \
-            uart0.o   \
+            mem_mapped_io.o   \
             mailbox.o \
 
 QEMU = qemu-system-arm-2.11.0
