@@ -1,6 +1,7 @@
 /* The xv6 kernel starts executing in this file. This file is linked with
- the kernel C code, so it can refer to kernel symbols such as main().
- The boot block (bootasm.S and bootmain.c) jumps to entry below.*/
+   the kernel C code, so it can refer to kernel symbols such as main().
+   On ARM the GPU bootloader loads our image file including this file into memory.
+   The reset vector jumps to _start, so this is the first instruction to run. */
 #include "arm.h"
 	
 .section ".text"
