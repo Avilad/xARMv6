@@ -1,7 +1,19 @@
 ENTRY(_start)
 
+svc_stack_size = 0x1000;
+
 SECTIONS
 {
+	/* Setup the vector table here */
+	. = 0x0;
+	.vector : {
+		build/trap_asm.o(.vector)
+	}
+	/* Setup page aligned svc stack */
+	. = ALIGN(0x1000);
+	. += svc_stack_size;
+	linker_svc_stack_top = .;
+	
 	/* the entry point, before enabling paging. The code to enable paing
    	needs to have the same virtual/physical address. entry.S and start.c
 	run in this initial setting.*/

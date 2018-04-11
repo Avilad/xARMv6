@@ -1,7 +1,8 @@
 /* The xv6 kernel starts executing in this file. This file is linked with
  the kernel C code, so it can refer to kernel symbols such as main().
  The boot block (bootasm.S and bootmain.c) jumps to entry below.*/
-
+#include "arm.h"
+	
 .section ".text"
 
 .global _start
@@ -29,7 +30,13 @@ clear_bss_top:
 	cmp r1, r2                //If bss_cur < bss_end loop
 	b clear_bss_top
 clear_bss_done:
-	bl c_main                 //Jump into C, does not return
+	//Initialize traps
+	//Set mode to SVC_MODE, Disable interrupts
+    MSR CPSR_cxsf, #(SVC_MODE|NO_INT)
+	//Now we have SVC_MODE sp
+	ldr sp, =linker_svc_stack_top
+	bl c_main                 //Jump into C, does not return, using bl is just a safety
+	//@todo we need to set the mode back to USER_MODE at some point
 loop_forever:
 	wfe
-	b loop_forever            //Just in case main returns
+	b loop_forever            

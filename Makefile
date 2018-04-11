@@ -1,15 +1,17 @@
 # Toolchain flags
-KERN_OBJS = entry.o   \
-            main.o    \
-            mem_mapped_io.o   \
-            mailbox.o \
+KERN_OBJS = entry.o         \
+            main.o          \
+            mem_mapped_io.o \
+            mailbox.o       \
+            trap_asm.o      \
+			trap.o          \
 
 QEMU = qemu-system-arm-2.11.0
 
-QEMUOPTS = -M raspi2 \
-           -m 256 \
+QEMUOPTS = -M raspi2         \
+           -m 256            \
            -serial mon:stdio \
-           -nographic \
+           -nographic        \
            -kernel kernel.elf
 
 CROSSCOMPILE := arm-none-eabi-
@@ -28,6 +30,10 @@ ASFLAGS = -fno-pic -c
 all: kernel.elf
 
 build/entry.o: entry.S
+	mkdir -p build
+	$(CC) $< $(ASFLAGS) -o $@
+
+build/trap_asm.o: trap_asm.S
 	mkdir -p build
 	$(CC) $< $(ASFLAGS) -o $@
 
