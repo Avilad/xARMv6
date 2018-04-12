@@ -9,12 +9,15 @@
  //Vector table starts at memory address 0
  //But we must manually load it there
 vector_table_start:	
-	b _start                             //reset_handler, branches to our OS entrypoint
-	ldr pc, undefined_instruction_handler_asm
+	//reset_handler, branches to our OS entrypoint
+	b _start                                  
+	//To trigger this use .word 0xf7f0a000
+	ldr pc, undefined_instruction_handler_asm 
 	ldr pc, software_interrupt_handler_asm
 	ldr pc, prefetch_abort_handler_asm
 	ldr pc, data_abort_handler_asm
-	ldr pc, unused_exception_handler_asm //Reserved for future use by ARM
+    //Reserved for future use by ARM
+	ldr pc, unused_exception_handler_asm
 	ldr pc, irq_handler_asm
 	//This handler begins directly in the vector table
 	//instead of branching to it like the others

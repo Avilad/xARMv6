@@ -84,3 +84,12 @@ void uart0_init(void);
 void uart0_send_char(char c);
 char uart0_get_char(void);
 void uart0_put_str(char* s);
+
+/*Timer and IRQ interrupts*/
+//http://projects-raspberry.com/wp-content/uploads/2015/08/BCM2836-ARM-local-peripherals-QA7_rev3.4.pdf?x32994
+#define LOCAL_TIMER_CONTROL_REGISTER ((volatile uint32*)(0x40000034))
+#define LOCAL_TIMER_INTERRUPT_ENABLE (1 << 29)
+#define LOCAL_TIMER_ENABLE           (1 << 28)
+#define LOCAL_TIMER_RELOAD_MASK       7FFFFFF
+#define LOCAL_TIMER_INTERRUPT_ROUTE_REGISTER ((volatile uint32*)(0x40000024))
+#define LOCAL_TIMER_INTERRUPT_ROUTE_CORE0_IRQ 0

@@ -1,0 +1,22 @@
+Bare metal RPI-3: https://github.com/bztsrc/raspi3-tutorial
+XV6-RPI: https://github.com/david50407/xv6-rpi/tree/master/src
+Cortex A7 Manual: http://infocenter.arm.com/help/topic/com.arm.doc.ddi0464f/index.html
+RPI-2 Periferals: http://projects-raspberry.com/wp-content/uploads/2015/08/BCM2836-ARM-local-peripherals-QA7_rev3.4.pdf?x32994
+RPI-1 Periferals: https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+"The underlying architecture in BCM2836 is identical to BCM2835. The only significant difference is the removal of the ARM1176JZF-S processor and replacement with a quad-core Cortex-A7 cluster."
+
+Board crystal timer (local timer) frequency is 19.2 MHz, but it defaults to 1 MHz due to the timer divisor.
+It also ticks on each clock edge so it's effectively 2 MHz by default.
+
+Registers:
+r0-r12: general purpose
+r13: stack register  sp
+r14: link register   lr
+r15: program counter pc
+APSR: Current ALU flags (don't use this, use CPSR)
+CPSR: https://www.heyrick.co.uk/armwiki/The_Status_register
+SPSR: Saved CPSR
+
+Multi-register load/store:
+	LDMFD: ! means writeback, don't use wtih ^ suffix
+	STMFD: Same.

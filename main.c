@@ -19,6 +19,14 @@ void kmain(void) {
 	//---Zero BSS section
 	zero_region(linker_bss_start, linker_bss_end);
 
+	//---Timer test code
+	enable_irq_interrupts();
+	//Enable timer to generate interrupts every 10 ms (1 Mhz timer generates interrupts on counting 10000)
+	mmio_write(LOCAL_TIMER_INTERRUPT_ROUTE_REGISTER,
+	           LOCAL_TIMER_INTERRUPT_ROUTE_CORE0_IRQ);
+	mmio_write(LOCAL_TIMER_CONTROL_REGISTER,
+	           LOCAL_TIMER_INTERRUPT_ENABLE | LOCAL_TIMER_ENABLE | 10000);
+
 	//---UART initialization
 	uart0_init();
 	uart0_put_str("Hello, world!\0");
