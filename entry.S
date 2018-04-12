@@ -10,15 +10,33 @@
 .global loop_forever
 _start:
 	//Stop all CPU cores if they aren't 1
-	MRC p15, 0, r1, c0, c0, 5 //r1 <- multiprocessor affinity register
-	ands r1, r1, #3           //r1 <- cpu id, set condition flags
-	bne loop_forever          //if r1 != 0 then loop_forever
+	mrc p15, 0, r0, c0, c0, 5 //r0 <- multiprocessor affinity register
+	ands r0, r0, #3           //r0 <- cpu id, set condition flags
+	bne loop_forever          //if r0 != 0 then loop_forever
 	
-	//Setup stack
-	ldr r1, =_start
-	mov sp, r1
+	//Setup stacks for all modes
+	msr cpsr_cxsf, #(PSR_FIQ_MODE|PSR_DISABLE_INTERRUPTS)
+	ldr r0, =linker_psr_mode_stacks_start
+	ldr r1, =4096
+	mov sp, r0
 	
-	bl c_main                 //Jump into C, does not return, using bl is just a safety
+	msr cpsr_cxsf, #(PSR_IRQ_MODE|PSR_DISABLE_INTERRUPTS)
+	add r0, r0, r1
+	mov sp, r0
+	
+	msr cpsr_cxsf, #(PSR_ABORT_MODE|PSR_DISABLE_INTERRUPTS)
+	add r0, r0, r1
+	mov sp, r0
+	
+	msr cpsr_cxsf, #(PSR_UNDEFINED_INSTRUCTION_MODE|PSR_DISABLE_INTERRUPTS)
+	add r0, r0, r1
+	mov sp, r0
+	
+	msr cpsr_cxsf, #(PSR_SUPERVISOR_MODE|PSR_DISABLE_INTERRUPTS)
+	ldr r0, =_start
+	mov sp, r0
+	
+	bl kmain //Jump into C, does not return, using bl is just a safety
 loop_forever:
 	wfe
 	b loop_forever

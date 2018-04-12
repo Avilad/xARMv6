@@ -3,8 +3,8 @@ ENTRY(_start)
 /*Stacks for each privelege mode that needs one
   We don't have one for user mode because it has its own stack
   allocated by the kernel*/
-privilege_mode_count = 6;
-privilege_mode_stacks_size = 0x1000 * privilege_mode_count;
+psr_mode_stack_count = 4;
+psr_mode_stacks_size = 0x1000 * psr_mode_stack_count;
 
 SECTIONS
 {
@@ -26,9 +26,8 @@ SECTIONS
 		*(.data .data.* .gnu.linkonce.d*)
 		/* Setup page aligned svc stack */
 		. = ALIGN(0x1000);
-		linker_privilege_mode_stacks_start = .;
-		. += privilege_mode_stacks_size;
-		linker_privilege_mode_stacks_end = .;
+		linker_psr_mode_stacks_start = .;
+		. += psr_mode_stacks_size;
 	}
 	. = ALIGN(16); /*Align BSS to 16 bytes*/
 	.bss (NOLOAD) : {
