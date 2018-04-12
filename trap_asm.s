@@ -1,5 +1,4 @@
-.section ".vector"
-.align 4
+.section ".text"
 .global undefined_instruction_handler_asm
 .global software_interrupt_handler_asm
 .global prefetch_abort_handler_asm
@@ -7,7 +6,9 @@
 .global unused_exception_handler_asm
 .global irq_handler_asm
 
-//Vector table starts at memory address 0
+ //Vector table starts at memory address 0
+ //But we must manually load it there
+vector_table_start:	
 	b _start                             //reset_handler, branches to our OS entrypoint
 	ldr pc, undefined_instruction_handler_asm
 	ldr pc, software_interrupt_handler_asm
