@@ -1,0 +1,30 @@
+Bare metal RPI-3: https://github.com/bztsrc/raspi3-tutorial
+Cortex A7 Manual: http://infocenter.arm.com/help/topic/com.arm.doc.ddi0464f/index.html
+RPI-2 Periferals: http://projects-raspberry.com/wp-content/uploads/2015/08/BCM2836-ARM-local-peripherals-QA7_rev3.4.pdf?x32994
+RPI-1 Periferals: https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf
+"The underlying architecture in BCM2836 is identical to BCM2835. The only significant difference is the removal of the ARM1176JZF-S processor and replacement with a quad-core Cortex-A7 cluster."
+
+Board crystal timer (local timer) frequency is 19.2 MHz, but it defaults to 1 MHz due to the timer divisor.
+It also ticks on each clock edge so it's effectively 2 MHz by default.
+
+Registers:
+r0-r12: general purpose
+r13: stack register  sp
+r14: link register   lr
+r15: program counter pc
+APSR: Current ALU flags (don't use this, use CPSR)
+CPSR: https://www.heyrick.co.uk/armwiki/The_Status_register
+SPSR: Saved CPSR
+
+Operating modes:
+ARM has 7 operating modes: user, fiq, irq, supervisor, abort, undefined instruction, and system mode.
+All but user and system mode are entered by trigger interrupts, and are used by the interrupt handlers.
+Not to be confused with their instruction set modes which execute three different instruction sets we are only concerned with arm instructions
+On mode switch registers are automatically switched by the processor we are responsible for saving any general purpose registers we clobber the processor will save sp and lr for us.
+There is also a hypervisor mode used for virtualization, and a monitor mode used for security extensions which we need not concern ourselves with.
+
+Multi-register load/store:
+LDMFD/STMFD: push/pop multiple registers from a Full (sp points to last occupied spot) Descending stack.
+! prefix means writeback as in increment/decrement the stack pointer as necessary.
+^ suffix on LDMFD means load the banked registers from user programs instead of whatever operating mode currently in.
+^ suffix on STMFD means that we should restore the CPSR to the SPSR for user mode, use this as a return from trap instruction, ensuring that one of the registers you restore (the return address) goes into PC.

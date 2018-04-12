@@ -1,14 +1,19 @@
 # Toolchain flags
-KERN_OBJS = entry.o   \
-            main.o    \
-            mem_mapped_io.o   \
-            mailbox.o \
+KERN_OBJS = entry.o         \
+            main.o          \
+            mem_mapped_io.o \
+            mailbox.o       \
+            trap_asm.o      \
+			trap.o          \
+			mem_utils.o     \
+			panic.o         \
 
 QEMU = qemu-system-arm-2.11.0
 
-QEMUOPTS = -M raspi2 \
+QEMUOPTS = -M raspi2         \
+           -m 256            \
            -serial mon:stdio \
-           -nographic \
+           -nographic        \
            -kernel kernel.elf
 
 CROSSCOMPILE := arm-none-eabi-
@@ -18,7 +23,7 @@ LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-CFLAGS = -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c -mcpu=cortex-a7
+CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
 LDFLAGS = -L
 ASFLAGS = -fno-pic -c
 
@@ -30,12 +35,19 @@ build/entry.o: entry.S
 	mkdir -p build
 	$(CC) $< $(ASFLAGS) -o $@
 
+build/trap_asm.o: trap_asm.S
+	mkdir -p build
+	$(CC) $< $(ASFLAGS) -o $@
+
 build/%.o: %.c
 	mkdir -p build
 	$(CC) $< $(CFLAGS) -o $@
 
+# Need this library for the (u)div instructions since arm doesn't have a div built in
+LIBGCC = $(shell $(CC) -print-libgcc-file-name)
+
 kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld 
-	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS))
+	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC)
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
@@ -48,7 +60,7 @@ qemu: kernel.elf
 
 # -S means you must run 'c' in GDB to run first instruction
 # -s is shorthand for -gdb tcp::1234
-qemu-gdb: kernel.elf .gdbinit
+qemu-gdb: .gdbinit
 	@echo "*** Now run 'gdb-multiarch'." 1>&2
 	$(QEMU) $(QEMUOPTS) -S -s
 
