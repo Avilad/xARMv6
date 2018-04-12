@@ -23,7 +23,7 @@ LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
+CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c -mcpu=cortex-a7
 LDFLAGS = -L
 ASFLAGS = -fno-pic -c
 
