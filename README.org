@@ -16,3 +16,11 @@ sudo apt install gcc-arm-none-eabi
 #+END_SRC
 You should also be able to get the binaries from here, if necessary
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+* Target Platform
+Raspberry Pi 2
+ARM Cortex-A7
+32-bit ARMv7-A
+1GB RAM
+* Links
+- ARM Cortex-A7 manual
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.subset.cortexa.cortexa7/index.html

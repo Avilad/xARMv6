@@ -23,4 +23,6 @@ SECTIONS
 		*(COMMON) /*All uninitialized file data*/
 		linker_bss_end = .;
 	}
+	
+	PROVIDE(kernel_end = .);
 }

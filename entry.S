@@ -5,6 +5,7 @@
 .section ".text"
 
 .global _start
+.global kernel_end
 .global loop_forever
 
 _start:

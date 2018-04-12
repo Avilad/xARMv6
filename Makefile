@@ -7,7 +7,6 @@ KERN_OBJS = entry.o   \
 QEMU = qemu-system-arm-2.11.0
 
 QEMUOPTS = -M raspi2 \
-           -m 256 \
            -serial mon:stdio \
            -nographic \
            -kernel kernel.elf
@@ -19,7 +18,7 @@ LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-CFLAGS = -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c
+CFLAGS = -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c -mcpu=cortex-a7
 LDFLAGS = -L
 ASFLAGS = -fno-pic -c
 
@@ -49,7 +48,7 @@ qemu: kernel.elf
 
 # -S means you must run 'c' in GDB to run first instruction
 # -s is shorthand for -gdb tcp::1234
-qemu-gdb: .gdbinit
+qemu-gdb: kernel.elf .gdbinit
 	@echo "*** Now run 'gdb-multiarch'." 1>&2
 	$(QEMU) $(QEMUOPTS) -S -s
 
