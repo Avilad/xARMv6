@@ -23,8 +23,8 @@ struct trap_frame {
 #define PSR_IRQ_INTERRUPT_DISABLE (1 << 7)
 #define PSR_DISABLE_INTERRUPTS    (PSR_FIQ_INTERRUPT_DISABLE | PSR_IRQ_INTERRUPT_DISABLE)
 
-// ARM has 7 privelege modes
-// Not to be confused with their execution modes
+// ARM has 7 operating modes
+// Not to be confused with their instruction set modes
 // which execute three different instruction sets
 // we are only concerned with arm instructions
 // On mode switch registers are automatically switched by the processor

@@ -16,6 +16,13 @@ APSR: Current ALU flags (don't use this, use CPSR)
 CPSR: https://www.heyrick.co.uk/armwiki/The_Status_register
 SPSR: Saved CPSR
 
+Operating modes:
+ARM has 7 operating modes: user, fiq, irq, supervisor, abort, undefined instruction, and system mode.
+All but user and system mode are entered by trigger interrupts, and are used by the interrupt handlers.
+Not to be confused with their instruction set modes which execute three different instruction sets we are only concerned with arm instructions
+On mode switch registers are automatically switched by the processor we are responsible for saving any general purpose registers we clobber the processor will save sp and lr for us.
+There is also a hypervisor mode used for virtualization, and a monitor mode used for security extensions which we need not concern ourselves with.
+
 Multi-register load/store:
 LDMFD/STMFD: push/pop multiple registers from a Full (sp points to last occupied spot) Descending stack.
 ! prefix means writeback as in increment/decrement the stack pointer as necessary.
