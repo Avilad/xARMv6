@@ -1,4 +1,6 @@
 //Functions for reading and writing ARM mailboxes
+#ifndef MAILBOX_H
+#define MAILBOX_H
 
 #include "types.h"
 #include "mem_mapped_io.h"
@@ -27,3 +29,5 @@
 extern volatile uint32 mailbox_message_buffer[36];
 
 bool64 mailbox_send_message(uint8 channel);
+
+#endif

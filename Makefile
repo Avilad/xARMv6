@@ -5,6 +5,8 @@ KERN_OBJS = entry.o         \
             mailbox.o       \
             trap_asm.o      \
 			trap.o          \
+			mem_utils.o     \
+			panic.o         \
 
 QEMU = qemu-system-arm-2.11.0
 
@@ -41,8 +43,11 @@ build/%.o: %.c
 	mkdir -p build
 	$(CC) $< $(CFLAGS) -o $@
 
+# Need this library for the (u)div instructions since arm doesn't have a div built in
+LIBGCC = $(shell $(CC) -print-libgcc-file-name)
+
 kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld 
-	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS))
+	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC)
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 

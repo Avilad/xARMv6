@@ -1,10 +1,8 @@
+//After some basic setup in assembly 
 #include "mem_mapped_io.h"
 #include "arm.h"
 #include "arm_asm_intrinsics.h"
-#include "mem_utils.h"
-
-//@todo move this
-#define array_len(a) (sizeof(a) / sizeof((a)[0]))
+#include "utils.h"
 
 //---Linker script variables
 extern char linker_bss_start[];
@@ -19,17 +17,12 @@ void kmain(void) {
 	//---Zero BSS section
 	zero_region(linker_bss_start, linker_bss_end);
 
-	//---Timer test code
-	enable_irq_interrupts();
-	//Enable timer to generate interrupts every 10 ms (1 Mhz timer generates interrupts on counting 10000)
-	mmio_write(LOCAL_TIMER_INTERRUPT_ROUTE_REGISTER,
-	           LOCAL_TIMER_INTERRUPT_ROUTE_CORE0_IRQ);
-	mmio_write(LOCAL_TIMER_CONTROL_REGISTER,
-	           LOCAL_TIMER_INTERRUPT_ENABLE | LOCAL_TIMER_ENABLE | 10000);
-
+	assert(7 < 5);
 	//---UART initialization
+	char buf[256];
+	char* test_string = sprintf(buf, 256, "Hello %d worlds!", -10);
 	uart0_init();
-	uart0_put_str("Hello, world!\0");
+	uart0_put_str(test_string);
 	while (1) {
 		uart0_send_char(uart0_get_char());
 	}

@@ -1,3 +1,7 @@
+//Fixed length typedefs
+#ifndef TYPES_H
+#define TYPES_H
+
 #include "stdint.h"
 
 typedef int8_t int8;
@@ -17,3 +21,5 @@ typedef uint8 bool8;
 typedef uint16 bool16;
 typedef uint32 bool32;
 typedef uint64 bool64;
+
+#endif

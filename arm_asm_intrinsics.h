@@ -1,6 +1,6 @@
+//Helpful arm assembly intrinsics
 #ifndef ARM_ASM_INTRINSICS_H
 #define ARM_ASM_INTRINSICS_H
-//Helpful arm assembly intrinsics
 
 uint32 get_cpsr() {
 	register uint32 cur_cpsr; //Status flags including privelege level

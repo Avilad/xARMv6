@@ -1,6 +1,6 @@
+//Arm specific defines and structures
 #ifndef ARM_H
 #define ARM_H
-//Arm specific defines and structures
 
 //For C Code
 #ifndef __ASSEMBLER__

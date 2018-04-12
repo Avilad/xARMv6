@@ -1,3 +1,6 @@
+//Memory mapped IO addresses and functions
+#ifndef MEM_MAPPED_IO_H
+#define MEM_MAPPED_IO_H
 #include "types.h"
 
 //ARM memory mapped IO addresses
@@ -93,3 +96,5 @@ void uart0_put_str(char* s);
 #define LOCAL_TIMER_RELOAD_MASK       7FFFFFF
 #define LOCAL_TIMER_INTERRUPT_ROUTE_REGISTER ((volatile uint32*)(0x40000024))
 #define LOCAL_TIMER_INTERRUPT_ROUTE_CORE0_IRQ 0
+
+#endif
