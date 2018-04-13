@@ -7,6 +7,7 @@ KERN_OBJS = entry.o         \
 			trap.o          \
 			mem_utils.o     \
 			panic.o         \
+			arm_asm_intrinsics.o \
 
 QEMU = qemu-system-arm-2.11.0
 
