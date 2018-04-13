@@ -1,4 +1,4 @@
- * have to do
+* have to do
 1. Set up the paging system, have working virtual memory
 2. Trap handling
 3. Working system calls

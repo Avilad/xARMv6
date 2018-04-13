@@ -36,11 +36,11 @@ void kmain(void) {
 
 	// Identity map from 1MB up to MMIO_BASE
 	uint32* page_table_base = (uint32*)((uint32)(kernel_end + 0x4000) & ~0x3FFF);
-	for(uint32 vaddr = 0; vaddr < MMIO_BASE; vaddr += MB) {
+	for(uint32 vaddr = 0; vaddr < 1*MB; vaddr += MB) {
 		uint32 offset = (vaddr >> 20); // Upper 12 bits are the offset
 		uint32* pt_entry = page_table_base + offset;
 		*pt_entry = 0; 
-		*pt_entry = vaddr | AP_DONT_CHECK_PERMS;
+		*pt_entry = vaddr | AP_DONT_CHECK_PERMS | USE_SECTIONS;
 		int x = 0;
 		x++;
 	}
@@ -52,15 +52,14 @@ void kmain(void) {
 	   https://witekio.com/blog/turning-arm-mmu-living-tell-tale-code/
 	*/
 	set_operating_mode(PSR_SYSTEM_MODE);
-	asm volatile(
-				 "mov r0, $4;"                 
+	asm volatile("mov r0, $4;"
 				 "mvn r0, r0;"
                  "mrc p15, 0, r1, c1, c0, 0;"  // Get current control register
                  "and r1, r0, r1;"             // Disable cacheing
                  "mcr p15, 0, r1, c1, c0, 0;"  // Reset it
 
 				 
-				 "mov r1, $0;"                 
+				 "mov r1, $0;"
 				 "mcr p15, 0, r1, c2, c0, 2;"  // Use TTBR0
 				 "mcr p15, 0, r1, c7, c7, 0;"  // Invalidate caches
 				 "mcr p15, 0, r1, c7, c5, 4;"  // Flush prefetch buffer
