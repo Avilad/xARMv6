@@ -28,10 +28,10 @@
 - int getpid(void);
 - char* sbrk(int);
 - int sleep(int);
+- int fork(void);
 * ha ha ha
 1. Logging
 ** nonessential shell commands
-- int fork(void);
 - int pipe(int*);
 - int unlink(char*);
 - int fstat(int fd, struct stat*);
