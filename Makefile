@@ -60,7 +60,7 @@ qemu: kernel.elf
 
 # -S means you must run 'c' in GDB to run first instruction
 # -s is shorthand for -gdb tcp::1234
-qemu-gdb: .gdbinit
+qemu-gdb: kernel.elf .gdbinit
 	@echo "*** Now run 'gdb-multiarch'." 1>&2
 	$(QEMU) $(QEMUOPTS) -S -s
 
