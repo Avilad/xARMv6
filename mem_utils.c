@@ -107,12 +107,19 @@ static char* write_uint(char* buf, char* buf_end, uint base, uint num) {
 
 //C standard library function sprintf with buffer size specified
 char* sprintf(char* buf, uint buf_size, const char* fmt, ...) {
-	if (buf_size < 1) {
+	return sprintf_no_var_args(buf, buf_size, &fmt);
+}
+
+//C standard library function sprintf with buffer size specified
+//This version can be called from within a var args function without pushing the arguments again
+char* sprintf_no_var_args(char* buf, uint buf_size, const char** fmt_addr) {
+	char* fmt = *fmt_addr;
+	if (!buf || !fmt || buf_size < 1) {
 		return nullptr; //Need at least space for null terminator
 	}
 	char* buf_start = buf;
 	char* buf_end = buf + buf_size - 1; //Leave space for null terminator
-	uint* var_args = (uint*)&fmt + 1;
+	uint* var_args = (uint*)fmt_addr + 1;
 
 	while (buf != buf_end
 	       && *fmt) {
