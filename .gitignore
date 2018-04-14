@@ -1,2 +1,5 @@
 build/
 resources/
+kernel.asm
+kernel.sym
+kernel.elf
