@@ -5,11 +5,13 @@ KERN_OBJS = entry.o         \
             mem_mapped_io.o \
             mailbox.o       \
             trap_asm.o      \
-      			trap.o          \
-      			timer.o         \
-      			mem_utils.o     \
-      			panic.o         \
-      			arm_asm_intrinsics.o \
+			trap.o          \
+			timer.o         \
+			mem_utils.o     \
+			panic.o         \
+			arm_asm_intrinsics.o \
+			console.o       \
+			syscall.o       \
 
 QEMU = qemu-system-arm-2.11.0
 

@@ -31,7 +31,8 @@ void kmain(void) {
 	// char* test_string = sprintf(buf, 256, "Hello %d worlds!\n", -10);
 	// uart0_put_str(test_string);
 
-
+	asm volatile ("ldr r0, =1;"
+	              "swi 0;");
 
 	while (1) {
 		uart0_send_char(uart0_get_char());

@@ -2,6 +2,7 @@
 //FIQ is a "fast" interrupt that is currently unused
 //It banks a different register set for certain ISRs that need to save those cycles
 #include "mem_mapped_io.h"
+#include "utils.h"
 
 // Timers interrupt control registers
 #define CORE0_TIMER_IRQCNTL MEM_REG(CONTROL_BASE + 0x40)

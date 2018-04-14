@@ -28,12 +28,12 @@ fiq_handler_asm:
     sub     sp, sp, #8
 
 	ldr     r11, =fiq_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 reset_handler_asm:
 	ldr r11, reset_handler_c
-	ldr pc, [r11]
+	mov pc, r11
 
 //The rest of these are instructions branched to from the vector table
 //All of them setup for C handlers then call into them
@@ -49,7 +49,7 @@ undefined_instruction_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, =undefined_instruction_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 software_interrupt_handler_asm:
@@ -63,7 +63,7 @@ software_interrupt_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, software_interrupt_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 prefetch_abort_handler_asm:
@@ -77,7 +77,7 @@ prefetch_abort_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, prefetch_abort_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 data_abort_handler_asm:
@@ -91,7 +91,7 @@ data_abort_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, data_abort_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 unused_exception_handler_asm:
@@ -105,7 +105,7 @@ unused_exception_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, unused_exception_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	b       trap_return
 
 irq_handler_asm:
@@ -121,7 +121,7 @@ irq_handler_asm:
     sub     sp, sp, #8
 	mov     r0, sp //Pass address of trap frame as a function argument
 	ldr     r11, irq_handler_c
-	ldr     pc, [r11]
+	mov     pc, r11
 	//b trap_return
 trap_return:
 	//Undo all of the saving we did before
