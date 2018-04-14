@@ -2,15 +2,15 @@
 #include "arm.h"
 #include "arm_asm_intrinsics.h"
 
-#define KB 1024
-#define MB 1024 * KB
-#define GB (long)(1024 * MB)
-
 #define WBWA_CACHEABLE 0x4 | 0x8 | 0x5000
 #define USE_SECTIONS 0x2
 #define AP_DONT_CHECK_PERMS 0xC00
 
 extern char kernel_end[];
+
+struct run {
+  struct run *next;
+};
 
 void vm_init() {
   // Identity map from 1MB up to PERI_BASE

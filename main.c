@@ -1,4 +1,3 @@
-// After some basic setup in assembly
 #include "vm.h"
 #include "arm.h"
 #include "timer.h"
@@ -19,10 +18,6 @@ extern char linker_bss_end[];
 extern char linker_vector_table_start[];
 extern char linker_vector_table_end[];
 
-struct run {
-  struct run *next;
-};
-
 void kmain(void) {
 	//---Initialize MMU
 	vm_init();
@@ -36,30 +31,7 @@ void kmain(void) {
 	//---UART initialization
 	uart0_init();
 	uart0_put_str("Hello, world!\n");
-
-	// Identity map 
-	uint32 offset = 0;
-	char* test = "dogs";
-	uint32* page_table_base = (uint32*)((uint32)(kernel_end + 0x4000) & ~0x3FFF); // 16k aligned
-	uint64 phystop = 2*GB;
-	for(uint32 vaddr = 0; vaddr <= 2*GB; vaddr += MB) {
-		uint32* pt_entry = page_table_base + offset;
-		*pt_entry = 0; 
-		*pt_entry = vaddr | AP_DONT_CHECK_PERMS | USE_SECTIONS;
-		offset++;
-	}
-
-	page_table_base[1] = 0 | AP_DONT_CHECK_PERMS | USE_SECTIONS;
 	
-
-	// Enable the MMU
-	set_operating_mode(PSR_SYSTEM_MODE);
-	asm volatile("mov r0, $4;"
-				 "mvn r0, r0;"
-                 "mrc p15, 0, r1, c1, c0, 0;"  // Get current control register
-                 "and r1, r0, r1;"             // Disable cacheing
-                 "mcr p15, 0, r1, c1, c0, 0;"  // Reset it
-
 	//---Generic timer interrupts initialization
 	timer_init();
 

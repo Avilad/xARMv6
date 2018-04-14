@@ -7,7 +7,7 @@ typedef unsigned char  uchar;
 typedef uint pde_t;
 
 #define fox_for(iter, until) for(uint32 iter = 0; iter < (until); iter++)
-#define KB 1024
-#define MB 1024 * KB
-#define GB (long)(1024 * MB)
+#define KB (1024U)
+#define MB (1024U * KB)
+#define GB (1024U * MB)
 #endif
