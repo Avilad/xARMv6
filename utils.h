@@ -9,6 +9,7 @@
 #define false 0
 #define nullptr 0
 #define array_len(a) (sizeof(a) / sizeof((a)[0]))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 void trigger_assert(const char* expr_str, const char* file_name, uint line_number, const char* func_name);
 void panic(char* s);

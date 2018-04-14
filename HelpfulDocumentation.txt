@@ -8,8 +8,13 @@ Board crystal timer (local timer) frequency is 19.2 MHz, but it defaults to 1 MH
 It also ticks on each clock edge so it's effectively 2 MHz by default.
 
 Registers:
-r0-r12: general purpose
-r13: stack register  sp
+r0-r1: return values, arguments, caller saved.
+r2-r3: arguments, caller saved.
+r4-r8: callee saved.
+r9: Platform specific.
+r10-11: callee saved.
+r12: Used by the linker to facilitate BL's to absolute addresses, assume it has changed after any branch which might require it. Called IP (intra-procedure call scratch register).
+r13: stack register SP
 r14: link register   lr
 r15: program counter pc
 APSR: Current ALU flags (don't use this, use CPSR)
