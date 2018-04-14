@@ -22,4 +22,8 @@ typedef uint16 bool16;
 typedef uint32 bool32;
 typedef uint64 bool64;
 
+#define fox_for(iter, until) for(uint32 iter = 0; iter < (until); iter++)
+#define KB 1024
+#define MB 1024 * KB
+#define GB (long)(1024 * MB)
 #endif

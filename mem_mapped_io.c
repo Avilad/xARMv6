@@ -59,7 +59,7 @@ void uart0_init() {
 	mmio_write(UART0_CR, UART0_CR_EN | UART0_CR_ENABLE_TX_RX_FIFO); // Re-enable receive and transfer
 	delay(150);
 #else
-		// Disable UART0.
+	// Disable UART0.
 	mmio_write(UART0_CR, 0x00000000);
 	// Setup the GPIO pin 14 && 15.
  

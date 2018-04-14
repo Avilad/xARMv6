@@ -11,7 +11,7 @@ KERN_OBJS = entry.o         \
 QEMU = qemu-system-arm-2.11.0
 
 QEMUOPTS = -M raspi2         \
-           -m 256            \
+           -m 1024            \
            -serial mon:stdio \
            -nographic        \
            -kernel kernel.elf
