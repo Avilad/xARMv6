@@ -19,5 +19,5 @@ void* memcpy_region(void* destination, const void* source_start, const void* sou
 void* memmove_region(void* destination, const void* source_start, const void* source_end);
 char* strcpy(char* destination, const char* source, uint dest_size);
 void* zero_region(void* mem_start, void* mem_end);
-
+#define zero_section(section) zero_region((section), (section) + MB)
 #endif
