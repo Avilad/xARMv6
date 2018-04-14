@@ -4,11 +4,7 @@
 
 void panic(char* msg) {
 	static const char panic_msg_start[] = "panic: ";
-	char buf[4096];
-	//The -1/+1 is to account for the null terminator
-	memcpy(buf, panic_msg_start, sizeof(panic_msg_start) - 1);
-	strcpy(buf + sizeof(panic_msg_start) - 1, msg, 4096 - sizeof(panic_msg_start) + 1);
-	uart0_put_str(buf);
+	cprintf("Panic'd: %s", msg);
 	while (true) {}
 }
 

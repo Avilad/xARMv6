@@ -9,10 +9,12 @@
 #define false 0
 #define nullptr 0
 #define array_len(a) (sizeof(a) / sizeof((a)[0]))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 
 void trigger_assert(const char* expr_str, const char* file_name, uint line_number, const char* func_name);
 void panic(char* s);
 char* sprintf(char* buf, uint buf_size, const char* fmt, ...);
+char* sprintf_no_var_args(char* buf, uint buf_size, const char** fmt_addr);
 void* memcpy(void* destination, const void* source, uint size);
 void* memmove(void* destination, const void* source, uint size);
 void* memcpy_region(void* destination, const void* source_start, const void* source_end);
