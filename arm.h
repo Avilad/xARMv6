@@ -8,11 +8,11 @@
 struct trap_frame {
 	//ARM SPSR (saved program status register) for the user
 	//Stores condition codes from the ALU, permissions for the user, etc.
-	uint32 user_link_register;
-	uint32 user_stack_register;
-	uint32 user_saved_status_register; //User saved SPSR
-	uint32 user_return_address;
-	uint32 general_registers[13]; //r0-r12 in the logical order
+	uint user_link_register;
+	uint user_stack_register;
+	uint user_saved_status_register; //User saved SPSR
+	uint user_return_address;
+	uint general_registers[13]; //r0-r12 in the logical order
 };
 #endif
 
@@ -38,6 +38,6 @@ struct trap_frame {
 #define PSR_UNDEFINED_INSTRUCTION_MODE 0x1b //Entered when an undefined instruction is executed
 #define PSR_SYSTEM_MODE                0x1f //System mode, not entered by exceptions, must be manually entered
 
-#define VECTOR_TABLE_START ((uint32*)0)
+#define VECTOR_TABLE_START ((uint*)0)
 
 #endif

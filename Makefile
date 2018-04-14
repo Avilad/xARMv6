@@ -1,12 +1,15 @@
 # Toolchain flags
 KERN_OBJS = entry.o         \
             main.o          \
+            vm.o            \
             mem_mapped_io.o \
             mailbox.o       \
             trap_asm.o      \
-			trap.o          \
-			mem_utils.o     \
-			panic.o         \
+      			trap.o          \
+      			timer.o         \
+      			mem_utils.o     \
+      			panic.o         \
+      			arm_asm_intrinsics.o \
 
 QEMU = qemu-system-arm-2.11.0
 
@@ -46,7 +49,7 @@ build/%.o: %.c
 # Need this library for the (u)div instructions since arm doesn't have a div built in
 LIBGCC = $(shell $(CC) -print-libgcc-file-name)
 
-kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld 
+kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld
 	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC)
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
@@ -66,6 +69,6 @@ qemu-gdb: kernel.elf .gdbinit
 
 
 # Utility scripts
-clean: 
+clean:
 	rm -rf build
 	rm -f *.o *.d *.asm *.sym *.elf
