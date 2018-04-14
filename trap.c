@@ -1,6 +1,5 @@
 //Handles traps
 #include "arm.h"
-#include "mailbox.h"
 #include "utils.h"
 #include "arm_asm_intrinsics.h"
 
@@ -64,8 +63,8 @@ void prefetch_abort_handler(struct trap_frame* tf) {
 
 void data_abort_handler(struct trap_frame* tf) {
 	char buf[1024];
-	uint32 faulting_addr = get_data_fault_addr();
-	//uint32 fault_info = get_data_fault_status(); @todo use this to print a better error message
+	uint faulting_addr = get_data_fault_addr();
+	//uint fault_info = get_data_fault_status(); @todo use this to print a better error message
 	panic(sprintf(buf, 1024,
 	              "Page fault at address 0x%x"
 	              " executing instruction at 0x%x",
