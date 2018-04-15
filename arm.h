@@ -5,7 +5,7 @@
 //For C Code
 #ifndef __ASSEMBLER__
 #include "types.h"
-struct trap_frame {
+struct trapframe {
 	//ARM SPSR (saved program status register) for the user
 	//Stores condition codes from the ALU, permissions for the user, etc.
 	uint user_link_register;

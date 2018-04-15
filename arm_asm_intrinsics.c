@@ -59,3 +59,23 @@ uint get_data_fault_status() {
 	#endif
 	return 0;
 }
+
+void atomic_store(uint* mem, uint val) {
+	//Initialize to zero to make GCC happy
+	register uint val_reg = 0;
+	register uint success;
+	asm volatile (//Atomic store loop top
+	              "1: "    
+	              //Atomic load value
+	              "ldrex %[val_reg_inout], [%[val_in]];"
+	              //Atomic store value
+	              "strex %[success_out], %[val_reg_inout], [%[mem_in]];"
+	              //If success_out is 0 i.e. load/store unsuccessful, loop
+	              "ands %[success_out], %[success_out];"
+	              //Branch to loop top
+	              "beq 1b;"
+	              : [val_reg_inout] "+r" (val_reg),
+	                [success_out] "=&r" (success)
+	              : [mem_in] "r" (mem),
+	                [val_in] "r" (&val));
+}

@@ -1,9 +1,9 @@
 //Panic function along with the function called when an assert is triggered
 #include "utils.h"
 #include "mem_mapped_io.h" //For UART
+#include "console.h"
 
 void panic(char* msg) {
-	static const char panic_msg_start[] = "panic: ";
 	cprintf("Panic'd: %s", msg);
 	while (true) {}
 }

@@ -3,7 +3,6 @@ KERN_OBJS = entry.o         \
             main.o          \
             vm.o            \
             mem_mapped_io.o \
-            mailbox.o       \
             trap_asm.o      \
 			trap.o          \
 			timer.o         \

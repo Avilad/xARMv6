@@ -11,6 +11,7 @@
 .global loop_forever
 _start:
 	//Stop all CPU cores if they aren't 1
+	//@multithreading 
 	mrc p15, 0, r0, c0, c0, 5 //r0 <- multiprocessor affinity register
 	ands r0, r0, #3           //r0 <- cpu id, set condition flags
 	bne loop_forever          //if r0 != 0 then loop_forever

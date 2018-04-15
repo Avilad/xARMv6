@@ -21,5 +21,6 @@ void* memcpy_region(void* destination, const void* source_start, const void* sou
 void* memmove_region(void* destination, const void* source_start, const void* source_end);
 char* strcpy(char* destination, const char* source, uint dest_size);
 void* zero_region(void* mem_start, void* mem_end);
+void* zero(void* mem, uint size);
 
 #endif

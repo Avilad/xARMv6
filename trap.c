@@ -3,8 +3,9 @@
 #include "utils.h"
 #include "arm_asm_intrinsics.h"
 #include "console.h"
+#include "syscall.h"
 
-static void dump_trap_frame(struct trap_frame* tf) {
+static void dump_trapframe(struct trapframe* tf) {
 	cprintf("user LR = 0x%x\n"
 	        "user SP = 0x%x\n"
 	        "user SPSR = 0x%x\n"
@@ -41,26 +42,26 @@ static void dump_trap_frame(struct trap_frame* tf) {
 	        tf->general_registers[12]);
 }
 
-void undefined_instruction_handler(struct trap_frame* tf) {
+void undefined_instruction_handler(struct trapframe* tf) {
 	char buf[1024];
 	//-4 because return address is after faulting instruction
-	dump_trap_frame(tf);
+	dump_trapframe(tf);
 	panic(sprintf(buf, 1024, "Undefined instruction executed at 0x%x",
 	              tf->user_return_address - 4));
 }
 
-void software_interrupt_handler(struct trap_frame* tf) {
+void software_interrupt_handler(struct trapframe* tf) {
 	uint syscall_id = tf->general_registers[0];
 	syscall(syscall_id);
 }
 
-void prefetch_abort_handler(struct trap_frame* tf) {
+void prefetch_abort_handler(struct trapframe* tf) {
 	char buf[1024];
 	panic(sprintf(buf, 1024, "Prefetch abort at 0x%x",
 	              tf->user_return_address - 4));
 }
 
-void data_abort_handler(struct trap_frame* tf) {
+void data_abort_handler(struct trapframe* tf) {
 	char buf[1024];
 	uint faulting_addr = get_data_fault_addr();
 	//uint fault_info = get_data_fault_status(); @todo use this to print a better error message
@@ -71,19 +72,19 @@ void data_abort_handler(struct trap_frame* tf) {
 	              tf->user_return_address));
 }
 
-void unused_exception_handler(struct trap_frame* tf) {
-	dump_trap_frame(tf);
+void unused_exception_handler(struct trapframe* tf) {
+	dump_trapframe(tf);
 	panic("ARM reserved interrupt vector called.\n"
 	      "This should never happen, might be a hardware error.");
 }
 
-void irq_handler(struct trap_frame* tf) {
+void irq_handler(struct trapframe* tf) {
 	//@todo
 	panic("irq handler unimplemented");
 }
 
-void fiq_handler(struct trap_frame* tf) {
-	dump_trap_frame(tf);
+void fiq_handler(struct trapframe* tf) {
+	dump_trapframe(tf);
 	panic("FIQ handler called.\n"
 	      "This should never happen because we don't enable FIQ interrupts.\n");
 }
