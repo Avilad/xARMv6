@@ -58,7 +58,6 @@ kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld
 
 # QEMU run scripts
 qemu: kernel.elf
-	@clear
 	@echo "Press Ctrl-A and then X to terminate QEMU session\n"
 	$(QEMU) $(QEMUOPTS)
 

@@ -3,6 +3,7 @@
 #include "timer.h"
 #include "utils.h"
 #include "types.h"
+#include "arm_asm_intrinsics.h"
 #include "mem_mapped_io.h"
 
 extern char kernel_end[];
@@ -19,6 +20,8 @@ extern char linker_vector_table_start[];
 extern char linker_vector_table_end[];
 
 void kmain(void) {
+	// cprintf("cpsr = 0x%x\n", get_cpsr());
+
 	//---Initialize MMU
 	vm_init();
 
@@ -31,9 +34,12 @@ void kmain(void) {
 	//---UART initialization
 	uart0_init();
 	uart0_put_str("Hello, world!\n");
-	
+
 	//---Generic timer interrupts initialization
 	timer_init();
+
+  // Enable IRQ interrupts so we can see the timer interrupt occur
+  enable_irq_interrupts();
 
 	// char buf[256];
 	// char* test_string = sprintf(buf, 256, "Hello %d worlds!\n", -10);

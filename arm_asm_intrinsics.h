@@ -1,3 +1,5 @@
+#include "types.h"
+
 //Helpful arm assembly intrinsics
 #ifndef ARM_ASM_INTRINSICS_H
 #define ARM_ASM_INTRINSICS_H
