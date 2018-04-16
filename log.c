@@ -1,10 +1,10 @@
 #include "types.h"
-#include "defs.h"
+#include "proc.h"
 #include "param.h"
 #include "spinlock.h"
-#include "sleeplock.h"
+#include "bio.h"
 #include "fs.h"
-#include "buf.h"
+#include "utils.h"
 
 // Simple logging that allows concurrent FS system calls.
 //
@@ -37,7 +37,7 @@ struct logheader {
 };
 
 struct log {
-  struct spinlock lock;
+  spinlock lock;
   int start;
   int size;
   int outstanding; // how many FS sys calls are executing.
@@ -72,8 +72,8 @@ install_trans(void)
   int tail;
 
   for (tail = 0; tail < log.lh.n; tail++) {
-    struct buf *lbuf = bread(log.dev, log.start+tail+1); // read log block
-    struct buf *dbuf = bread(log.dev, log.lh.block[tail]); // read dst
+    buf *lbuf = bread(log.dev, log.start+tail+1); // read log block
+    buf *dbuf = bread(log.dev, log.lh.block[tail]); // read dst
     memmove(dbuf->data, lbuf->data, BSIZE);  // copy block to dst
     bwrite(dbuf);  // write dst to disk
     brelse(lbuf);
@@ -85,7 +85,7 @@ install_trans(void)
 static void
 read_head(void)
 {
-  struct buf *buf = bread(log.dev, log.start);
+  buf *buf = bread(log.dev, log.start);
   struct logheader *lh = (struct logheader *) (buf->data);
   int i;
   log.lh.n = lh->n;
@@ -101,7 +101,7 @@ read_head(void)
 static void
 write_head(void)
 {
-  struct buf *buf = bread(log.dev, log.start);
+  buf *buf = bread(log.dev, log.start);
   struct logheader *hb = (struct logheader *) (buf->data);
   int i;
   hb->n = log.lh.n;
@@ -180,8 +180,8 @@ write_log(void)
   int tail;
 
   for (tail = 0; tail < log.lh.n; tail++) {
-    struct buf *to = bread(log.dev, log.start+tail+1); // log block
-    struct buf *from = bread(log.dev, log.lh.block[tail]); // cache block
+    buf *to = bread(log.dev, log.start+tail+1); // log block
+    buf *from = bread(log.dev, log.lh.block[tail]); // cache block
     memmove(to->data, from->data, BSIZE);
     bwrite(to);  // write the log
     brelse(from);
@@ -211,7 +211,7 @@ commit()
 //   log_write(bp)
 //   brelse(bp)
 void
-log_write(struct buf *b)
+log_write(buf *b)
 {
   int i;
 
@@ -231,4 +231,3 @@ log_write(struct buf *b)
   b->flags |= B_DIRTY; // prevent eviction
   release(&log.lock);
 }
-

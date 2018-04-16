@@ -2,8 +2,11 @@
 #include "utils.h"
 #include "mem_mapped_io.h" //For UART
 #include "console.h"
+#include "arm_asm_intrinsics.h" //For interrupts
 
 void panic(char* msg) {
+	disable_irq_interrupts();
+
 	cprintf("Panic'd: %s", msg);
 	while (true) {}
 }

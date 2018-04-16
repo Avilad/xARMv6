@@ -17,12 +17,12 @@
 #include "fcntl.h"
 
 // Fetch the nth word-sized system call argument as a file descriptor
-// and return both the descriptor and the corresponding struct file.
+// and return both the descriptor and the corresponding file.
 static int
-argfd(int n, int *pfd, struct file **pf)
+argfd(int n, int *pfd, file **pf)
 {
   int fd;
-  struct file *f;
+  file *f;
 
   if(argint(n, &fd) < 0)
     return -1;
@@ -38,10 +38,10 @@ argfd(int n, int *pfd, struct file **pf)
 // Allocate a file descriptor for the given file.
 // Takes over file reference from caller on success.
 static int
-fdalloc(struct file *f)
+fdalloc(file *f)
 {
   int fd;
-  struct proc *curproc = myproc();
+  proc *curproc = myproc();
 
   for(fd = 0; fd < NOFILE; fd++){
     if(curproc->ofile[fd] == 0){
@@ -55,7 +55,7 @@ fdalloc(struct file *f)
 int
 sys_dup(void)
 {
-  struct file *f;
+  file *f;
   int fd;
 
   if(argfd(0, 0, &f) < 0)
@@ -69,7 +69,7 @@ sys_dup(void)
 int
 sys_read(void)
 {
-  struct file *f;
+  file *f;
   int n;
   char *p;
 
@@ -81,7 +81,7 @@ sys_read(void)
 int
 sys_write(void)
 {
-  struct file *f;
+  file *f;
   int n;
   char *p;
 
@@ -94,7 +94,7 @@ int
 sys_close(void)
 {
   int fd;
-  struct file *f;
+  file *f;
 
   if(argfd(0, &fd, &f) < 0)
     return -1;
@@ -106,8 +106,8 @@ sys_close(void)
 int
 sys_fstat(void)
 {
-  struct file *f;
-  struct stat *st;
+  file *f;
+  stat *st;
 
   if(argfd(0, 0, &f) < 0 || argptr(1, (void*)&st, sizeof(*st)) < 0)
     return -1;
@@ -119,7 +119,7 @@ int
 sys_link(void)
 {
   char name[DIRSIZ], *new, *old;
-  struct inode *dp, *ip;
+  inode *dp, *ip;
 
   if(argstr(0, &old) < 0 || argstr(1, &new) < 0)
     return -1;
@@ -166,7 +166,7 @@ bad:
 
 // Is the directory dp empty except for "." and ".." ?
 static int
-isdirempty(struct inode *dp)
+isdirempty(inode *dp)
 {
   int off;
   struct dirent de;
@@ -184,7 +184,7 @@ isdirempty(struct inode *dp)
 int
 sys_unlink(void)
 {
-  struct inode *ip, *dp;
+  inode *ip, *dp;
   struct dirent de;
   char name[DIRSIZ], *path;
   uint off;
@@ -238,11 +238,11 @@ bad:
   return -1;
 }
 
-static struct inode*
+static inode*
 create(char *path, short type, short major, short minor)
 {
   uint off;
-  struct inode *ip, *dp;
+  inode *ip, *dp;
   char name[DIRSIZ];
 
   if((dp = nameiparent(path, name)) == 0)
@@ -288,8 +288,8 @@ sys_open(void)
 {
   char *path;
   int fd, omode;
-  struct file *f;
-  struct inode *ip;
+  file *f;
+  inode *ip;
 
   if(argstr(0, &path) < 0 || argint(1, &omode) < 0)
     return -1;
@@ -337,7 +337,7 @@ int
 sys_mkdir(void)
 {
   char *path;
-  struct inode *ip;
+  inode *ip;
 
   begin_op();
   if(argstr(0, &path) < 0 || (ip = create(path, T_DIR, 0, 0)) == 0){
@@ -352,7 +352,7 @@ sys_mkdir(void)
 int
 sys_mknod(void)
 {
-  struct inode *ip;
+  inode *ip;
   char *path;
   int major, minor;
 
@@ -373,8 +373,8 @@ int
 sys_chdir(void)
 {
   char *path;
-  struct inode *ip;
-  struct proc *curproc = myproc();
+  inode *ip;
+  proc *curproc = myproc();
   
   begin_op();
   if(argstr(0, &path) < 0 || (ip = namei(path)) == 0){
@@ -424,7 +424,7 @@ int
 sys_pipe(void)
 {
   int *fd;
-  struct file *rf, *wf;
+  file *rf, *wf;
   int fd0, fd1;
 
   if(argptr(0, (void*)&fd, 2*sizeof(fd[0])) < 0)

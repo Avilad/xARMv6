@@ -2,15 +2,24 @@
 KERN_OBJS = entry.o         \
             main.o          \
             vm.o            \
+						mp.o            \
             mem_mapped_io.o \
             trap_asm.o      \
-			trap.o          \
-			timer.o         \
-			mem_utils.o     \
-			panic.o         \
-			arm_asm_intrinsics.o \
-			console.o       \
-			syscall.o       \
+            trap.o          \
+            timer.o         \
+						proc.o          \
+            mem_utils.o     \
+            panic.o         \
+            console.o       \
+            syscall.o       \
+						spinlock.o      \
+						sleeplock.o			\
+						memide.o        \
+						bio.o           \
+						log.o           \
+						file.o          \
+						pipe.o          \
+						fs.o						\
 
 QEMU = qemu-system-arm-2.11.0
 
@@ -50,11 +59,22 @@ build/%.o: %.c
 # Need this library for the (u)div instructions since arm doesn't have a div built in
 LIBGCC = $(shell $(CC) -print-libgcc-file-name)
 
-kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld
-	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC)
+kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld fs.img.o
+	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC) fs.img.o
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
+# Filesystem scripts
+mkfs: mkfs.c fs.h
+	gcc -Werror -Wall -o mkfs mkfs.c
+
+UPROGS=
+
+fs.img: mkfs README.org $(UPROGS)
+	./mkfs fs.img README.org $(UPROGS)
+
+fs.img.o: fs.img
+	$(LD) -r -b binary fs.img -o fs.img.o
 
 # QEMU run scripts
 qemu: kernel.elf
@@ -71,4 +91,4 @@ qemu-gdb: kernel.elf .gdbinit
 # Utility scripts
 clean:
 	rm -rf build
-	rm -f *.o *.d *.asm *.sym *.elf
+	rm -f *.o *.d *.asm *.sym *.elf mkfs fs.img

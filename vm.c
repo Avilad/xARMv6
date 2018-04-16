@@ -49,7 +49,7 @@ void kfree(char* section) {
 	if ((uint)section < KERNTOP) { panic("Tried to free where the kernel lives"); }
 
 	// Clear out the page
-	zero_region(section, section + MB);
+	zero_section(section);
 
 	// Add it to the freelist
 	struct run* run =  (struct run*)section;
@@ -75,7 +75,7 @@ pte_t* walkpgdir(pte_t* pgdir, const void* vaddr) {
 // Map vstart to vstart + num_sections *MB to contiguous sections
 void map(pde_t* pgdir, void* vstart, void* pstart, uint num_sections) {
 	if (!IS_SECTION_ALIGNED(pstart)) { panic("Tried to map on non-section aligned boundary"); }
-	
+
 	uint section = (uint)pstart;
 	void* vaddr = vstart;
 	fox_for(isection, num_sections) {
@@ -94,7 +94,7 @@ void vm_init() {
 	map(page_table_base, 0, 0, 256);
 	// Identity map peripherals
 	map(page_table_base, SECTION_ROUND_DOWN(PERI_BASE), SECTION_ROUND_DOWN(PERI_BASE), 32);
-	
+
 	// Flush caches and enable MMU
 	set_operating_mode(PSR_SYSTEM_MODE);
 	uart0_put_str("ye2");
@@ -159,7 +159,7 @@ int allocuvm(pde_t *pgdir, uint old_vtop, uint new_vtop) {
 
 #if 0
 // @todo finish when the file system works
-int loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz) {
+int loaduvm(pde_t *pgdir, char *addr, inode *ip, uint offset, uint sz) {
 	return 0;
 }
 #endif
@@ -176,5 +176,5 @@ int copyout(pde_t *pgdir, void* vdst, void* psrc, uint len) {
 }
 
 void freevm(pde_t *pgdir) {
-	
+
 }

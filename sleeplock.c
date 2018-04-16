@@ -1,17 +1,11 @@
 // Sleeping locks
 
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "x86.h"
-#include "memlayout.h"
-#include "mmu.h"
 #include "proc.h"
 #include "spinlock.h"
 #include "sleeplock.h"
 
 void
-initsleeplock(struct sleeplock *lk, char *name)
+initsleeplock(sleeplock *lk, char *name)
 {
   initlock(&lk->lk, "sleep lock");
   lk->name = name;
@@ -20,7 +14,7 @@ initsleeplock(struct sleeplock *lk, char *name)
 }
 
 void
-acquiresleep(struct sleeplock *lk)
+acquiresleep(sleeplock *lk)
 {
   acquire(&lk->lk);
   while (lk->locked) {
@@ -32,7 +26,7 @@ acquiresleep(struct sleeplock *lk)
 }
 
 void
-releasesleep(struct sleeplock *lk)
+releasesleep(sleeplock *lk)
 {
   acquire(&lk->lk);
   lk->locked = 0;
@@ -42,15 +36,12 @@ releasesleep(struct sleeplock *lk)
 }
 
 int
-holdingsleep(struct sleeplock *lk)
+holdingsleep(sleeplock *lk)
 {
   int r;
-  
+
   acquire(&lk->lk);
   r = lk->locked;
   release(&lk->lk);
   return r;
 }
-
-
-

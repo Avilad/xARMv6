@@ -1,5 +1,15 @@
 //Useful memory functions like memcpy
+#include "types.h"
 #include "utils.h"
+
+//Sets a region of memory
+void* memset(void* destination, int val, uint count) {
+	uchar* dest = (uchar*)destination;
+	while (count-- != 0) {
+		*dest++ = (uchar)val;
+	}
+	return destination;
+}
 
 //For non-overlapping source/destinations
 //or cases where destination < source
@@ -53,7 +63,7 @@ void* memmove_region(void* destination, const void* source_start, const void* so
 
 //Copy null terminated source into destination which is at least dest_size in length
 //dest_size includes the space for the null terminator
-char* strcpy(char* destination, const char* source, uint dest_size) {
+char* strncpy(char* destination, const char* source, uint dest_size) {
 	if (dest_size < 1) {
 		return nullptr;
 	}
@@ -64,6 +74,14 @@ char* strcpy(char* destination, const char* source, uint dest_size) {
 	}
 	*destination = 0;
 	return destination;
+}
+
+int strncmp(const char *p, const char *q, uint size) {
+  while(size > 0 && *p && *p == *q)
+    size--, p++, q++;
+  if(size == 0)
+    return 0;
+  return (uchar)*p - (uchar)*q;
 }
 
 //Zero a region of memory
@@ -113,7 +131,7 @@ char* sprintf(char* buf, uint buf_size, const char* fmt, ...) {
 //C standard library function sprintf with buffer size specified
 //This version can be called from within a var args function without pushing the arguments again
 char* sprintf_no_var_args(char* buf, uint buf_size, const char** fmt_addr) {
-	char* fmt = *fmt_addr;
+	const char* fmt = *fmt_addr;
 	if (!buf || !fmt || buf_size < 1) {
 		return nullptr; //Need at least space for null terminator
 	}

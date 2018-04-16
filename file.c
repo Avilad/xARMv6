@@ -3,17 +3,17 @@
 //
 
 #include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "fs.h"
-#include "spinlock.h"
-#include "sleeplock.h"
 #include "file.h"
+#include "param.h"
+#include "spinlock.h"
+#include "log.h"
+#include "pipe.h"
+#include "utils.h"
 
 struct devsw devsw[NDEV];
 struct {
-  struct spinlock lock;
-  struct file file[NFILE];
+  spinlock lock;
+  file file[NFILE];
 } ftable;
 
 void
@@ -23,10 +23,10 @@ fileinit(void)
 }
 
 // Allocate a file structure.
-struct file*
+file*
 filealloc(void)
 {
-  struct file *f;
+  file *f;
 
   acquire(&ftable.lock);
   for(f = ftable.file; f < ftable.file + NFILE; f++){
@@ -41,8 +41,8 @@ filealloc(void)
 }
 
 // Increment ref count for file f.
-struct file*
-filedup(struct file *f)
+file*
+filedup(file *f)
 {
   acquire(&ftable.lock);
   if(f->ref < 1)
@@ -54,9 +54,9 @@ filedup(struct file *f)
 
 // Close file f.  (Decrement ref count, close when reaches 0.)
 void
-fileclose(struct file *f)
+fileclose(file *f)
 {
-  struct file ff;
+  file ff;
 
   acquire(&ftable.lock);
   if(f->ref < 1)
@@ -81,7 +81,7 @@ fileclose(struct file *f)
 
 // Get metadata about file f.
 int
-filestat(struct file *f, struct stat *st)
+filestat(file *f, stat *st)
 {
   if(f->type == FD_INODE){
     ilock(f->ip);
@@ -94,7 +94,7 @@ filestat(struct file *f, struct stat *st)
 
 // Read from file f.
 int
-fileread(struct file *f, char *addr, int n)
+fileread(file *f, char *addr, int n)
 {
   int r;
 
@@ -115,7 +115,7 @@ fileread(struct file *f, char *addr, int n)
 //PAGEBREAK!
 // Write to file f.
 int
-filewrite(struct file *f, char *addr, int n)
+filewrite(file *f, char *addr, int n)
 {
   int r;
 
@@ -154,4 +154,3 @@ filewrite(struct file *f, char *addr, int n)
   }
   panic("filewrite");
 }
-

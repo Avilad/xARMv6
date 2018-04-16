@@ -18,27 +18,25 @@
 // * B_DIRTY: the buffer data has been modified
 //     and needs to be written to disk.
 
-#include "types.h"
-#include "defs.h"
+#include "ide.h"
 #include "param.h"
 #include "spinlock.h"
-#include "sleeplock.h"
-#include "fs.h"
 #include "buf.h"
+#include "utils.h"
 
 struct {
-  struct spinlock lock;
-  struct buf buf[NBUF];
+  spinlock lock;
+  buf buf[NBUF];
 
   // Linked list of all buffers, through prev/next.
   // head.next is most recently used.
-  struct buf head;
+  buf head;
 } bcache;
 
 void
 binit(void)
 {
-  struct buf *b;
+  buf *b;
 
   initlock(&bcache.lock, "bcache");
 
@@ -58,10 +56,10 @@ binit(void)
 // Look through buffer cache for block on device dev.
 // If not found, allocate a buffer.
 // In either case, return locked buffer.
-static struct buf*
+static buf*
 bget(uint dev, uint blockno)
 {
-  struct buf *b;
+  buf *b;
 
   acquire(&bcache.lock);
 
@@ -93,10 +91,10 @@ bget(uint dev, uint blockno)
 }
 
 // Return a locked buf with the contents of the indicated block.
-struct buf*
+buf*
 bread(uint dev, uint blockno)
 {
-  struct buf *b;
+  buf *b;
 
   b = bget(dev, blockno);
   if((b->flags & B_VALID) == 0) {
@@ -107,7 +105,7 @@ bread(uint dev, uint blockno)
 
 // Write b's contents to disk.  Must be locked.
 void
-bwrite(struct buf *b)
+bwrite(buf *b)
 {
   if(!holdingsleep(&b->lock))
     panic("bwrite");
@@ -118,7 +116,7 @@ bwrite(struct buf *b)
 // Release a locked buffer.
 // Move to the head of the MRU list.
 void
-brelse(struct buf *b)
+brelse(buf *b)
 {
   if(!holdingsleep(&b->lock))
     panic("brelse");
@@ -136,9 +134,8 @@ brelse(struct buf *b)
     bcache.head.next->prev = b;
     bcache.head.next = b;
   }
-  
+
   release(&bcache.lock);
 }
 //PAGEBREAK!
 // Blank page.
-

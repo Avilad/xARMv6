@@ -1,15 +1,11 @@
 // Mutual exclusion spin locks.
 
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "x86.h"
-#include "memlayout.h"
-#include "mmu.h"
+#include "arm_asm_intrinsics.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "utils.h"
 
-void initlock(struct spinlock *lk, char *name) {
+void initlock(spinlock *lk, char *name) {
 	lk->name = name;
 	lk->locked = 0;
 	lk->cpu = 0;
@@ -19,8 +15,8 @@ void initlock(struct spinlock *lk, char *name) {
 // Loops (spins) until the lock is acquired.
 // Holding a lock for a long time may cause
 // other CPUs to waste time spinning to acquire it.
-void acquire(struct spinlock *lk) {
-	disable_irq_interrupts(); // disable interrupts to avoid deadlock.
+void acquire(spinlock *lk) {
+	pushcli(); // disable interrupts to avoid deadlock.
 	if(holding(lk)) {
 		panic("acquire");
 	}
@@ -38,11 +34,11 @@ void acquire(struct spinlock *lk) {
 }
 
 // Release the lock.
-void release(struct spinlock *lk) {
+void release(spinlock *lk) {
 	if(!holding(lk)) {
 		panic("release");
 	}
-	
+
 	lk->cpu = 0;
 
 	// Tell the C compiler and the processor to not move loads or stores
@@ -57,10 +53,37 @@ void release(struct spinlock *lk) {
 	// not be atomic. A real OS would use C atomics here.
 	atomic_store(&lk->locked, 0);
 
-	enable_irq_interrupts();
+	popcli();
 }
 
 // Check whether this cpu is holding the lock.
-int holding(struct spinlock *lock) {
+int holding(spinlock *lock) {
 	return lock->locked && lock->cpu == mycpu();
+}
+
+// Pushcli/popcli are like cli/sti except that they are matched:
+// it takes two popcli to undo two pushcli.  Also, if interrupts
+// are off, then pushcli, popcli leaves them off.
+
+void
+pushcli(void)
+{
+  int interrupts_enabled = irq_interrupts_enabled();
+  disable_irq_interrupts();
+	cpu *cpu = mycpu();
+  if(cpu->ncli == 0)
+    cpu->intena = interrupts_enabled;
+  cpu->ncli += 1;
+}
+
+void
+popcli(void)
+{
+  if(irq_interrupts_enabled())
+    panic("popcli - interruptible");
+	cpu *cpu = mycpu();
+  if(--cpu->ncli < 0)
+    panic("popcli");
+  if(cpu->ncli == 0 && cpu->intena)
+    enable_irq_interrupts();
 }
