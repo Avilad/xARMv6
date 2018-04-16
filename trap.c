@@ -79,8 +79,10 @@ void unused_exception_handler(trapframe* tf) {
 }
 
 void irq_handler(trapframe* tf) {
+	set_cntp_tval(100000000);
+	enable_irq_interrupts();
 	//@todo
-	panic("irq handler unimplemented");
+	cprintf("irq handler unimplemented\n");
 }
 
 void fiq_handler(trapframe* tf) {

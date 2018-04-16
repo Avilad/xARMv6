@@ -1,3 +1,4 @@
+#include "arm_asm_intrinsics.h"
 #include "mem_mapped_io.h"
 #include "console.h"
 #include "utils.h"
@@ -11,13 +12,8 @@
 // Enable IRQ interrupts from CNTPS (timer 0)
 #define CNTPS_IRQ 0x1
 
-static inline void set_tval(uint tval) {
-  asm volatile("mcr p15, 0, %0, c14, c2, 0;" : : "r" (tval));
-}
-
 void timer_init() {
-	// Enable the timer
-  asm volatile("mcr p15, 0, %0, c14, c2, 1;" : : "r" (1));
+	enable_timer();
 
   // Enable interrupts from the timer
   mmio_write(CORE0_TIMER_IRQCNTL, CNTPS_IRQ);
@@ -26,5 +22,5 @@ void timer_init() {
   // mmio_write(CORE3_TIMER_IRQCNTL, CNTPS_IRQ);
 
   // Interrupt in 100000000 timer ticks
-  set_tval(100000000);
+  set_cntp_tval(100000000);
 }

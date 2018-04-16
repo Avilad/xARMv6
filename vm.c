@@ -3,6 +3,7 @@
 #include "arm_asm_intrinsics.h"
 #include "utils.h"
 #include "mem_mapped_io.h"
+#include "uart.h"
 #include "memlayout.h"
 
 #define WBWA_CACHEABLE 0x4 | 0x8 | 0x5000

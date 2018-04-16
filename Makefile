@@ -3,7 +3,7 @@ KERN_OBJS = entry.o         \
             main.o          \
             vm.o            \
 						mp.o            \
-            mem_mapped_io.o \
+            uart.o \
             trap_asm.o      \
             trap.o          \
             timer.o         \

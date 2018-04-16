@@ -49,6 +49,20 @@ static inline int irq_interrupts_enabled() {
 	return !(cur_cpsr & PSR_IRQ_INTERRUPT_DISABLE);
 }
 
+static inline void enable_timer() {
+	asm volatile("mcr p15, 0, %0, c14, c2, 1;" : : "r" (1));
+}
+
+static inline int get_cntp_tval() {
+	register int tval;
+	asm volatile ("mrc p15, 0, %0, c14, c2, 0" : "=r" (tval));
+	return tval;
+}
+
+static inline void set_cntp_tval(int tval) {
+  asm volatile("mcr p15, 0, %0, c14, c2, 0;" : : "r" (tval));
+}
+
 static inline uint get_data_fault_addr() {
 	//@todo
 	#if 0

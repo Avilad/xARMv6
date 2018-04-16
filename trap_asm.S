@@ -22,7 +22,7 @@ fiq_handler_asm:
 	stmfd   sp!, {r0-r12, lr}
     mrs     r2, spsr
     stmfd   sp!, {r2}
-	
+
 	/*Cant use writeback because hardware doesn't like it when using ^ suffix*/
     stmfd   sp, {sp, lr}^
     sub     sp, sp, #8

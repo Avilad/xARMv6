@@ -4,14 +4,8 @@
 #include "utils.h"
 #include "types.h"
 #include "arm_asm_intrinsics.h"
-#include "mem_mapped_io.h"
-
-extern char kernel_end[];
-
-#define WBWA_CACHEABLE 0x4 | 0x8 | 0x5000
-#define USE_SECTIONS 0x2
-#define USE_SMALL_PAGES 0x2
-#define AP_DONT_CHECK_PERMS 0xC00
+#include "uart.h"
+#include "console.h"
 
 //---Linker script variables
 extern char linker_bss_start[];

@@ -11,6 +11,8 @@
 #define array_len(a) (sizeof(a) / sizeof((a)[0]))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
+#define delay(loops) for(uint __delay = 0; __delay < (loops); ++__delay) { asm volatile("nop"); }
+
 void  trigger_assert(const char* expr_str, const char* file_name, uint line_number, const char* func_name);
 void  panic(char* s) __attribute__((noreturn));
 char* sprintf(char* buf, uint buf_size, const char* fmt, ...);
