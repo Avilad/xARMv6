@@ -330,7 +330,7 @@ proc* myproc(void) {
 //
 // 	for(;;){
 // 		// Enable interrupts on this processor.
-// 		enable_irq_interrupts();
+// 		enable_interrupts();
 //
 // 		// Loop over process table looking for process to run.
 // 		acquire(&ptable.lock);
@@ -376,7 +376,7 @@ sched(void)
 // 		panic("sched locks");
 // 	if(p->state == RUNNING)
 // 		panic("sched running");
-// 	if(irq_interrupts_enabled())
+// 	if(interrupts_enabled())
 // 		panic("sched interruptible");
 // 	intena = mycpu()->intena;
 // 	swtch(&p->context, mycpu()->scheduler);

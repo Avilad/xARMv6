@@ -3,8 +3,10 @@ KERN_OBJS = entry.o         \
             main.o          \
             vm.o            \
 						mp.o            \
-            uart.o \
+            uart.o          \
+						vectors.o       \
             trap_asm.o      \
+						initcode.o      \
             trap.o          \
             timer.o         \
 						proc.o          \
@@ -37,7 +39,7 @@ OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
 CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c -mcpu=cortex-a7
-LDFLAGS = -L
+LDFLAGS =
 ASFLAGS = -fno-pic -c
 
 
@@ -52,6 +54,19 @@ build/trap_asm.o: trap_asm.S
 	mkdir -p build
 	$(CC) $< $(ASFLAGS) -o $@
 
+build/vectors.o: vectors.S
+	mkdir -p build
+	$(CC) $< $(ASFLAGS) -o $@
+
+build/initcode.o: initcode.S
+	mkdir -p build
+	@echo $@
+	$(CC) $< $(ASFLAGS) -o $@
+	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o initcode.out build/initcode.o
+	$(OBJCOPY) -S -O binary initcode.out initcode
+	$(LD) -r -b binary initcode -o build/initcode.o
+	rm -f initcode initcode.out
+
 build/%.o: %.c
 	mkdir -p build
 	$(CC) $< $(CFLAGS) -o $@
@@ -59,8 +74,8 @@ build/%.o: %.c
 # Need this library for the (u)div instructions since arm doesn't have a div built in
 LIBGCC = $(shell $(CC) -print-libgcc-file-name)
 
-kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld fs.img.o
-	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC) fs.img.o
+kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld build/fs.img.o
+	$(LD) -T kernel.ld  -o $@ $(addprefix build/,$(KERN_OBJS)) $(LIBGCC) build/fs.img.o
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
@@ -73,8 +88,9 @@ UPROGS=
 fs.img: mkfs README.org $(UPROGS)
 	./mkfs fs.img README.org $(UPROGS)
 
-fs.img.o: fs.img
-	$(LD) -r -b binary fs.img -o fs.img.o
+build/fs.img.o: fs.img
+	$(LD) -r -b binary fs.img -o build/fs.img.o
+	rm -f fs.img
 
 # QEMU run scripts
 qemu: kernel.elf

@@ -28,25 +28,20 @@ static inline void set_operating_mode(uint mode_bit) {
 
 //Enable IRQ interrupts
 //ARM uses a disable flag so we clear it
-static inline void enable_irq_interrupts() {
-	register uint cur_cpsr = get_cpsr();
-	cur_cpsr = cur_cpsr & ~PSR_IRQ_INTERRUPT_DISABLE;
-	set_cpsr(cur_cpsr);
+static inline void enable_interrupts() {
+	asm volatile ("cpsie i");
+}
+
+//Disable interrupts
+static inline void disable_interrupts() {
+	asm volatile ("cpsid i");
 }
 
 //Enable IRQ interrupts
 //ARM uses a disable flag so we clear it
-static inline void disable_irq_interrupts() {
+static inline int interrupts_enabled() {
 	register uint cur_cpsr = get_cpsr();
-	cur_cpsr = cur_cpsr | PSR_IRQ_INTERRUPT_DISABLE;
-	set_cpsr(cur_cpsr);
-}
-
-//Enable IRQ interrupts
-//ARM uses a disable flag so we clear it
-static inline int irq_interrupts_enabled() {
-	register uint cur_cpsr = get_cpsr();
-	return !(cur_cpsr & PSR_IRQ_INTERRUPT_DISABLE);
+	return !(cur_cpsr & PSR_IRQ_MASK);
 }
 
 static inline void enable_timer() {

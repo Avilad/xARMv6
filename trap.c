@@ -6,10 +6,8 @@
 #include "syscall.h"
 
 static void dump_trapframe(trapframe* tf) {
-	cprintf("user LR = 0x%x\n"
-	        "user SP = 0x%x\n"
-	        "user SPSR = 0x%x\n"
-	        "return address = 0x%x\n"
+	cprintf("sp = 0x%x\n"
+	        "lr = 0x%x\n"
 	        "r0 = 0x%x\n"
 	        "r1 = 0x%x\n"
 	        "r2 = 0x%x\n"
@@ -22,43 +20,64 @@ static void dump_trapframe(trapframe* tf) {
 	        "r9 = 0x%x\n"
 	        "r10 = 0x%x\n"
 	        "r11 = 0x%x\n"
-	        "r12 = 0x%x\n",
-	        tf->user_link_register,
-	        tf->user_stack_register,
-	        tf->user_saved_status_register,
-	        tf->user_return_address,
-	        tf->general_registers[0],
-	        tf->general_registers[1],
-	        tf->general_registers[2],
-	        tf->general_registers[3],
-	        tf->general_registers[4],
-	        tf->general_registers[5],
-	        tf->general_registers[6],
-	        tf->general_registers[7],
-	        tf->general_registers[8],
-	        tf->general_registers[9],
-	        tf->general_registers[10],
-	        tf->general_registers[11],
-	        tf->general_registers[12]);
+	        "r12 = 0x%x\n"
+	        "lr_svc = 0x%x\n"
+	        "cpsr = 0x%x\n"
+	        "pc = 0x%x\n",
+	        tf->sp,
+	        tf->lr,
+	        tf->r[0],
+	        tf->r[1],
+	        tf->r[2],
+	        tf->r[3],
+	        tf->r[4],
+	        tf->r[5],
+	        tf->r[6],
+	        tf->r[7],
+	        tf->r[8],
+	        tf->r[9],
+	        tf->r[10],
+	        tf->r[11],
+	        tf->r[12],
+	        tf->lr_svc,
+	        tf->cpsr,
+	        tf->pc);
+}
+
+static char* mode_names[] = {
+	[0] "user",
+	[1] "FIQ",
+	[2] "IRQ",
+	[3] "supervisor",
+	[7] "abort",
+	[11] "undefined",
+	[15] "system"
+};
+
+static void print_cpsr() {
+	uint cpsr = get_cpsr();
+	cprintf("cpsr = 0x%x\nflags = %s%s%s%s\nmode = %s\n\n", cpsr,
+	        cpsr & PSR_ASNYC_ABORT_MASK ? "A" : "a",
+	        cpsr & PSR_IRQ_MASK 				? "I" : "i",
+	        cpsr & PSR_FIQ_MASK 				? "F" : "f",
+	        cpsr & PSR_THUMB_STATE 			? "T" : "t",
+	        mode_names[(cpsr & PSR_MODE_MASK) - 0x10]);
 }
 
 void undefined_instruction_handler(trapframe* tf) {
 	char buf[1024];
-	//-4 because return address is after faulting instruction
 	dump_trapframe(tf);
-	panic(sprintf(buf, 1024, "Undefined instruction executed at 0x%x",
-	              tf->user_return_address - 4));
+	panic(sprintf(buf, 1024, "Undefined instruction executed at 0x%x", tf->pc));
 }
 
 void software_interrupt_handler(trapframe* tf) {
-	uint syscall_id = tf->general_registers[0];
+	uint syscall_id = ((uint *)tf->pc)[-1] & 0xFFFFFF;
 	syscall(syscall_id);
 }
 
 void prefetch_abort_handler(trapframe* tf) {
 	char buf[1024];
-	panic(sprintf(buf, 1024, "Prefetch abort at 0x%x",
-	              tf->user_return_address - 4));
+	panic(sprintf(buf, 1024, "Prefetch abort at 0x%x", tf->pc));
 }
 
 void data_abort_handler(trapframe* tf) {
@@ -69,24 +88,24 @@ void data_abort_handler(trapframe* tf) {
 	              "Page fault at address 0x%x"
 	              " executing instruction at 0x%x",
 	              faulting_addr,
-	              tf->user_return_address));
+	              tf->pc));
 }
 
-void unused_exception_handler(trapframe* tf) {
-	dump_trapframe(tf);
+void reserved_exception_handler() {
 	panic("ARM reserved interrupt vector called.\n"
-	      "This should never happen, might be a hardware error.");
+	      "This should never happen, might be a hardware error.\n");
 }
 
-void irq_handler(trapframe* tf) {
+void irq_handler(trapframe *tf) {
 	set_cntp_tval(100000000);
-	enable_irq_interrupts();
-	//@todo
-	cprintf("irq handler unimplemented\n");
+
+	cprintf("TIMER INTERRUPT CALLED\n");
+	print_cpsr();
+
+  enable_interrupts();
 }
 
-void fiq_handler(trapframe* tf) {
-	dump_trapframe(tf);
+void fiq_handler() {
 	panic("FIQ handler called.\n"
 	      "This should never happen because we don't enable FIQ interrupts.\n");
 }

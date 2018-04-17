@@ -6,22 +6,22 @@
 #ifndef __ASSEMBLER__
 #include "types.h"
 typedef struct {
-	//ARM SPSR (saved program status register) for the user
-	//Stores condition codes from the ALU, permissions for the user, etc.
-	uint user_link_register;
-	uint user_stack_register;
-	uint user_saved_status_register; //User saved SPSR
-	uint user_return_address;
-	uint general_registers[13]; //r0-r12 in the logical order
+    uint sp;
+    uint lr;
+    uint r[13];
+    uint lr_svc; // (== pc if SVC exception)
+    uint pc;
+    uint cpsr;
 } trapframe;
 #endif
 
 // For assembly and C code
 // Program status register bitmasks
 #define PSR_MODE_MASK              0x1f
-#define PSR_FIQ_INTERRUPT_DISABLE (1 << 6)
-#define PSR_IRQ_INTERRUPT_DISABLE (1 << 7)
-#define PSR_DISABLE_INTERRUPTS    (PSR_FIQ_INTERRUPT_DISABLE | PSR_IRQ_INTERRUPT_DISABLE)
+#define PSR_THUMB_STATE 					(1 << 5)
+#define PSR_FIQ_MASK 							(1 << 6)
+#define PSR_IRQ_MASK 							(1 << 7)
+#define PSR_ASNYC_ABORT_MASK			(1 << 8)
 
 // ARM has 7 operating modes
 // Not to be confused with their instruction set modes

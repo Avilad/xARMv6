@@ -68,22 +68,22 @@ int holding(spinlock *lock) {
 void
 pushcli(void)
 {
-  int interrupts_enabled = irq_interrupts_enabled();
-  disable_irq_interrupts();
+  int intena = interrupts_enabled();
+  disable_interrupts();
 	cpu *cpu = mycpu();
   if(cpu->ncli == 0)
-    cpu->intena = interrupts_enabled;
+    cpu->intena = intena;
   cpu->ncli += 1;
 }
 
 void
 popcli(void)
 {
-  if(irq_interrupts_enabled())
+  if(interrupts_enabled())
     panic("popcli - interruptible");
 	cpu *cpu = mycpu();
   if(--cpu->ncli < 0)
     panic("popcli");
   if(cpu->ncli == 0 && cpu->intena)
-    enable_irq_interrupts();
+    enable_interrupts();
 }

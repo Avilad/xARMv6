@@ -5,7 +5,7 @@
 #include "arm_asm_intrinsics.h" //For interrupts
 
 void panic(char* msg) {
-	disable_irq_interrupts();
+	disable_interrupts();
 
 	cprintf("Panic'd: %s", msg);
 	while (true) {}
