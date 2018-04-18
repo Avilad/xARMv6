@@ -1,3 +1,16 @@
+#ifndef VM_H
+#define VM_H
+
+#include "types.h"
+#include "proc.h"
+
 void vm_init();
-void kfree(char* section);
-char* kalloc(void);
+void switchuvm(proc*);
+void switchkvm(void);
+void mmap(pde_t*, void*, void*, uint);
+pde_t* setupkvm(void);
+void kfree(char*);
+void* kalloc(void);
+void inituvm(pde_t*, char*, uint);
+
+#endif // VM_H

@@ -7,6 +7,7 @@ KERN_OBJS = entry.o         \
 						vectors.o       \
             trap_asm.o      \
 						initcode.o      \
+						swtch.o         \
             trap.o          \
             timer.o         \
 						proc.o          \
@@ -58,11 +59,15 @@ build/vectors.o: vectors.S
 	mkdir -p build
 	$(CC) $< $(ASFLAGS) -o $@
 
+build/swtch.o: swtch.S
+	mkdir -p build
+	$(CC) $< $(ASFLAGS) -o $@
+
 build/initcode.o: initcode.S
 	mkdir -p build
 	@echo $@
 	$(CC) $< $(ASFLAGS) -o $@
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o initcode.out build/initcode.o
+	$(LD) $(LDFLAGS) -N -e start -Ttext 80000000 -o initcode.out build/initcode.o
 	$(OBJCOPY) -S -O binary initcode.out initcode
 	$(LD) -r -b binary initcode -o build/initcode.o
 	rm -f initcode initcode.out

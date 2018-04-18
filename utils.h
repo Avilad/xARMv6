@@ -27,6 +27,6 @@ int strncmp(const char *p, const char *q, uint size);
 void* zero_region(void* mem_start, void* mem_end);
 void* zero(void* mem, uint size);
 
-#define zero_section(section) zero_region((section), (section) + MB)
+#define zero_section(section) zero_region((void *)(section), ((void *)(section)) + MB)
 
 #endif

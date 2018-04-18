@@ -16,6 +16,8 @@
 .globl irq_handler
 .globl fiq_handler
 
+.globl fork_return
+
 undefined_instruction_handler_asm:
 	sub     lr, lr, #4
 	srsfd   sp!, #PSR_SUPERVISOR_MODE
@@ -87,6 +89,10 @@ irq_handler_asm:
 fiq_handler_asm:
 	cps			#PSR_SUPERVISOR_MODE
 	bl 			fiq_handler
+	b				trap_return
+
+fork_return:
+	bl			fork_return_helper
 
 trap_return:
 	ldmfd   sp, {sp, lr}^      // restore user mode sp and lr

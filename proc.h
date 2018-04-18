@@ -7,29 +7,37 @@
 #include "spinlock.h"
 #include "file.h"
 
-typedef trapframe context;
-// context {
-// 	trapframe tf;
-// };
+typedef struct {
+	uint r4;
+	uint r5;
+	uint r6;
+	uint r7;
+	uint r8;
+	uint r9;
+	uint r10;
+	uint r11;
+	uint r12;
+	uint pc;
+} context;
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
 typedef struct proc proc;
 struct proc {
-	uint sz;                     // Size of process memory (bytes)
-	pde_t* pgdir;                // Page table
-	char *kstack;                // Bottom of kernel stack for this process
-	enum procstate state;        // Process state
-	int pid;                     // Process ID
+	uint sz;              // Size of process memory (bytes)
+	pde_t* pgdir;         // Page table
+	char *kstack;         // Bottom of kernel stack for this process
+	enum procstate state; // Process state
+	int pid;              // Process ID
 	proc *parent;         // Parent process
 	trapframe *tf;        // Trap frame for current syscall
 	context *context;     // swtch() here to run process
-	void *chan;                  // If non-zero, sleeping on chan
-	int killed;                  // If non-zero, have been killed
+	void *chan;           // If non-zero, sleeping on chan
+	int killed;           // If non-zero, have been killed
 	file *ofile[NOFILE];  // Open files
 	inode *cwd;           // Current directory
-	char name[16];               // Process name (debugging)
+	char name[16];        // Process name (debugging)
 };
 
 // Per-CPU state

@@ -1,5 +1,6 @@
 #include "mem_mapped_io.h"
 #include "utils.h"
+#include "uart.h"
 
 //Formated printf-like print to the console
 //Understands everything that sprintf does
