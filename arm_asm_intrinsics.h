@@ -91,7 +91,7 @@ static inline void atomic_store(uint* mem, uint val) {
 	              //Atomic store value
 	              "strex %[success_out], %[val_reg_inout], [%[mem_in]];"
 	              //If success_out is 0 i.e. load/store unsuccessful, loop
-	              "ands %[success_out], %[success_out];"
+	              "cmp %[success_out], 1;"
 	              //Branch to loop top
 	              "beq 1b;"
 	              : [val_reg_inout] "+r" (val_reg),

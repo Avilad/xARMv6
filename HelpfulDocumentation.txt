@@ -14,7 +14,7 @@ r4-r8: callee saved.
 r9: Platform specific, callee saved.
 r10: callee saved.
 r11: frame pointer, callee saved.
-r12: Used by the linker to facilitate BL's to absolute addresses, assume it has changed after any branch which might require it. Called  IP (intra-procedure call scratch register). Callee saved.
+r12: Used by the linker to facilitate BL's to absolute addresses, assume it has changed after any branch which might require it. Called IP (intra-procedure call scratch register). Callee saved.
 r13: stack register  SP
 r14: link register   LR
 r15: program counter PC
