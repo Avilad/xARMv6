@@ -15,6 +15,9 @@ KERN_OBJS = entry.o         \
             panic.o         \
             console.o       \
             syscall.o       \
+						sysproc.o       \
+						sysfile.o       \
+						exec.o					\
 						spinlock.o      \
 						sleeplock.o			\
 						memide.o        \

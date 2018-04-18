@@ -3,7 +3,7 @@
 #define ELF_MAGIC 0x464C457FU  // "\x7FELF" in little endian
 
 // File header
-struct elfhdr {
+typedef struct {
   uint magic;  // must equal ELF_MAGIC
   uchar elf[12];
   ushort type;
@@ -19,10 +19,10 @@ struct elfhdr {
   ushort shentsize;
   ushort shnum;
   ushort shstrndx;
-};
+} elfhdr;
 
 // Program section header
-struct proghdr {
+typedef struct {
   uint type;
   uint off;
   uint vaddr;
@@ -31,7 +31,7 @@ struct proghdr {
   uint memsz;
   uint flags;
   uint align;
-};
+} proghdr;
 
 // Values for Proghdr type
 #define ELF_PROG_LOAD           1

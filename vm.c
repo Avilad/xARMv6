@@ -164,20 +164,38 @@ inituvm(pde_t *pgdir, char *init, uint sz)
   memmove(mem, init, sz);
 }
 
-#if 0
-// @todo finish when the file system works
-int loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz) {
-	return 0;
+// Load a program segment into pgdir. addr must be page-aligned
+// and the pages from addr to addr+sz must already be mapped.
+int
+loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
+{
+  uint i, n;
+  void *pa;
+  pde_t *pde;
+
+  if((uint)addr % MB != 0)
+    panic("loaduvm: addr must be page aligned");
+  for(i = 0; i < sz; i += MB){
+    if((pde = walkpgdir(pgdir, addr+i)) == 0)
+      panic("loaduvm: address should exist");
+    pa = PHYS_SECTION_FROM_DESC(*pde);
+    if(sz - i < MB)
+      n = sz - i;
+    else
+      n = MB;
+    if(readi(ip, pa, offset+i, n) != n)
+      return -1;
+  }
+  return 0;
 }
-#endif
 
 // Increases the size of process by mapping pages until it has new_vtop memory
 int allocuvm(pde_t *pgdir, uint old_vtop, uint new_vtop) {
 	// If we already have enough memory, just return
-	if (old_vtop > new_vtop) { return old_vtop; }
-	if (new_vtop - MB > old_vtop) { return new_vtop; }
+	if (new_vtop <= old_vtop) { return old_vtop; }
+	// if (new_vtop - MB > old_vtop) { return new_vtop; }
 
-	// Map sections until we have at least new_vtop bytes
+	// Map sections until the top of our memory is at least at new_vtop
 	void* virt_section = SECTION_ROUND_UP(old_vtop);
 	while(1) {
 		char* phys_section = kalloc();

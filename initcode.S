@@ -5,14 +5,13 @@
 
 .globl start
 start:
-  ldr r0, =init
-  ldr r1, =argv
-  svc #SYS_test
+  @ ldr r0, =init
+  @ ldr r1, =argv
+  @ svc #SYS_exec
 
 // for(;;) exit();
 exit:
-  @ movl $SYS_exit, %eax
-  @ int $T_SYSCALL
+  svc #SYS_exit
   b exit
 
 // char init[] = "/init\0";
