@@ -20,7 +20,7 @@ int    namecmp(const char*, const char*);
 inode* namei(char*);
 inode* nameiparent(char*, char*);
 int    readi(inode*, char*, uint, uint);
-void   stati(inode*, stat*);
+void   stati(inode*, struct stat*);
 int    writei(inode*, char*, uint, uint);
 
 #endif // FS_H

@@ -17,5 +17,7 @@ int loaduvm(pde_t*, char*, inode*, uint, uint);
 int allocuvm(pde_t*, uint, uint);
 void freevm(pde_t*);
 int copyout(pde_t*, void*, void*, uint);
+pde_t* copyuvm(pde_t*, uint);
+int deallocuvm(pde_t *, uint, uint);
 
 #endif // VM_H

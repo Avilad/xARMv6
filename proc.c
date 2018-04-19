@@ -131,71 +131,71 @@ userinit(void)
 
 // Grow current process's memory by n bytes.
 // Return 0 on success, -1 on failure.
-// int
-// growproc(int n)
-// {
-// 	uint sz;
-// 	proc *curproc = myproc();
-//
-// 	sz = curproc->sz;
-// 	if(n > 0){
-// 		if((sz = allocuvm(curproc->pgdir, sz, sz + n)) == 0)
-// 			return -1;
-// 	} else if(n < 0){
-// 		if((sz = deallocuvm(curproc->pgdir, sz, sz + n)) == 0)
-// 			return -1;
-// 	}
-// 	curproc->sz = sz;
-// 	switchuvm(curproc);
-// 	return 0;
-// }
+int
+growproc(int n)
+{
+	uint top;
+	proc *curproc = myproc();
+
+	top = curproc->sz + USERBASE;
+	if(n > 0){
+		if((top = allocuvm(curproc->pgdir, top, top + n)) == 0)
+			return -1;
+	} else if(n < 0){
+		if((top = deallocuvm(curproc->pgdir, top, top + n)) == 0)
+			return -1;
+	}
+	curproc->sz = top - USERBASE;
+	switchuvm(curproc);
+	return 0;
+}
 
 // Create a new process copying p as the parent.
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
-// int
-// fork(void)
-// {
-// 	int i, pid;
-// 	proc *np;
-// 	proc *curproc = myproc();
-//
-// 	// Allocate process.
-// 	if((np = allocproc()) == 0){
-// 		return -1;
-// 	}
-//
-// 	// Copy process state from proc.
-// 	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
-// 		kfree(np->kstack);
-// 		np->kstack = 0;
-// 		np->state = UNUSED;
-// 		return -1;
-// 	}
-// 	np->sz = curproc->sz;
-// 	np->parent = curproc;
-// 	*np->tf = *curproc->tf;
-//
-// 	// Clear %eax so that fork returns 0 in the child.
-// 	np->tf->r[0] = 0;
-//
-// 	for(i = 0; i < NOFILE; i++)
-// 		if(curproc->ofile[i])
-// 			np->ofile[i] = filedup(curproc->ofile[i]);
-// 	np->cwd = idup(curproc->cwd);
-//
-// 	safestrcpy(np->name, curproc->name, sizeof(curproc->name));
-//
-// 	pid = np->pid;
-//
-// 	acquire(&ptable.lock);
-//
-// 	np->state = RUNNABLE;
-//
-// 	release(&ptable.lock);
-//
-// 	return pid;
-// }
+int
+fork(void)
+{
+	int i, pid;
+	proc *np;
+	proc *curproc = myproc();
+
+	// Allocate process.
+	if((np = allocproc()) == 0){
+		return -1;
+	}
+
+	// Copy process state from proc.
+	if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
+		kfree(np->kstack);
+		np->kstack = 0;
+		np->state = UNUSED;
+		return -1;
+	}
+	np->sz = curproc->sz;
+	np->parent = curproc;
+	*np->tf = *curproc->tf;
+
+	// Clear %eax so that fork returns 0 in the child.
+	np->tf->r[0] = 0;
+
+	for(i = 0; i < NOFILE; i++)
+		if(curproc->ofile[i])
+			np->ofile[i] = filedup(curproc->ofile[i]);
+	np->cwd = idup(curproc->cwd);
+
+	strncpy(np->name, curproc->name, sizeof(curproc->name));
+
+	pid = np->pid;
+
+	acquire(&ptable.lock);
+
+	np->state = RUNNABLE;
+
+	release(&ptable.lock);
+
+	return pid;
+}
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
@@ -245,47 +245,47 @@ exit(void)
 
 // Wait for a child process to exit and return its pid.
 // Return -1 if this process has no children.
-// int
-// wait(void)
-// {
-// 	proc *p;
-// 	int havekids, pid;
-// 	proc *curproc = myproc();
-//
-// 	acquire(&ptable.lock);
-// 	for(;;){
-// 		// Scan through table looking for exited children.
-// 		havekids = 0;
-// 		for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-// 			if(p->parent != curproc)
-// 				continue;
-// 			havekids = 1;
-// 			if(p->state == ZOMBIE){
-// 				// Found one.
-// 				pid = p->pid;
-// 				kfree(p->kstack);
-// 				p->kstack = 0;
-// 				freevm(p->pgdir);
-// 				p->pid = 0;
-// 				p->parent = 0;
-// 				p->name[0] = 0;
-// 				p->killed = 0;
-// 				p->state = UNUSED;
-// 				release(&ptable.lock);
-// 				return pid;
-// 			}
-// 		}
-//
-// 		// No point waiting if we don't have any children.
-// 		if(!havekids || curproc->killed){
-// 			release(&ptable.lock);
-// 			return -1;
-// 		}
-//
-// 		// Wait for children to exit.  (See wakeup1 call in proc_exit.)
-// 		sleep(curproc, &ptable.lock);  //DOC: wait-sleep
-// 	}
-// }
+int
+wait(void)
+{
+	proc *p;
+	int havekids, pid;
+	proc *curproc = myproc();
+
+	acquire(&ptable.lock);
+	for(;;){
+		// Scan through table looking for exited children.
+		havekids = 0;
+		for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+			if(p->parent != curproc)
+				continue;
+			havekids = 1;
+			if(p->state == ZOMBIE){
+				// Found one.
+				pid = p->pid;
+				kfree(p->kstack);
+				p->kstack = 0;
+				freevm(p->pgdir);
+				p->pid = 0;
+				p->parent = 0;
+				p->name[0] = 0;
+				p->killed = 0;
+				p->state = UNUSED;
+				release(&ptable.lock);
+				return pid;
+			}
+		}
+
+		// No point waiting if we don't have any children.
+		if(!havekids || curproc->killed){
+			release(&ptable.lock);
+			return -1;
+		}
+
+		// Wait for children to exit.  (See wakeup1 call in proc_exit.)
+		sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+	}
+}
 
 //PAGEBREAK: 42
 // Per-CPU process scheduler.

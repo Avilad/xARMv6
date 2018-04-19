@@ -49,7 +49,7 @@ void  fileclose(file*);
 file* filedup(file*);
 void  fileinit(void);
 int   fileread(file*, char*, int n);
-int   filestat(file*, stat*);
+int   filestat(file*, struct stat*);
 int   filewrite(file*, char*, int n);
 
 #endif // FILE_H

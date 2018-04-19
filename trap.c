@@ -7,8 +7,12 @@
 #include "syscall.h"
 #include "proc.h"
 #include "uart.h"
+#include "spinlock.h"
 
 #define CORE0_IRQ_SOURCE  MEM_REG(CONTROL_BASE + 0x60)
+
+spinlock tickslock;
+uint ticks;
 
 static void dump_trapframe(trapframe* tf) {
 	cprintf("sp = 0x%x\n"

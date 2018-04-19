@@ -263,3 +263,32 @@ int copyout(pde_t *pgdir, void* vdst, void* psrc, uint len) {
 	memcpy(pdst, psrc, len);
 	return 1;
 }
+
+// Given a parent process's page table, create a copy
+// of it for a child.
+pde_t*
+copyuvm(pde_t *pgdir, uint sz)
+{
+  pde_t *d, *pde;
+  uint i;
+  char *mem, *pa;
+
+  if((d = setupkvm()) == 0)
+    return 0;
+  for(i = 0; i < sz; i += MB){
+    if((pde = walkpgdir(pgdir, (void *) i)) == 0)
+      panic("copyuvm: pte should exist");
+    if(!(*pde & INVALID_SECTION_MASK))
+      panic("copyuvm: page not present");
+    pa = PHYS_SECTION_FROM_DESC(*pde);
+    if((mem = kalloc()) == 0)
+      goto bad;
+    memmove(mem, (char*)pa, MB);
+    mmap(d, (void*)i, pa, 1);
+  }
+  return d;
+
+bad:
+  freevm(d);
+  return 0;
+}
