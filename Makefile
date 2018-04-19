@@ -106,9 +106,21 @@ mkfs: mkfs.c fs.h
 	gcc -Werror -Wall -o mkfs mkfs.c
 
 UPROGS=\
+	_cat\
+	_echo\
+	_forktest\
+	_grep\
 	_init\
-	_sh\
+	_kill\
+	_ln\
 	_ls\
+	_mkdir\
+	_rm\
+	_sh\
+	_stressfs\
+	_usertests\
+	_wc\
+	_zombie\
 
 build/fs.img: mkfs $(UPROGS)
 	cd build/user;\

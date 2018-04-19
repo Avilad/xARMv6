@@ -4,6 +4,8 @@
 #include "../types.h"
 #include "../fcntl.h"
 #include "../fs.h"
+#include "../syscall.h"
+#include "../param.h"
 
 struct stat;
 struct rtcdate;
