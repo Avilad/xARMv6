@@ -88,8 +88,7 @@ kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld build/fs.img.o
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
-# ULIB = ulib.o usys.o printf.o umalloc.o
-ULIB = usys.o printf.o ulib.o
+ULIB = ulib.o usys.o printf.o umalloc.o
 
 build/user/usys.o: user/usys.S
 	mkdir -p build/user
@@ -108,6 +107,8 @@ mkfs: mkfs.c fs.h
 
 UPROGS=\
 	_init\
+	_sh\
+	_ls\
 
 build/fs.img: mkfs $(UPROGS)
 	cd build/user;\

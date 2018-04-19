@@ -341,30 +341,30 @@ scheduler(void)
 void
 sched(void)
 {
-// 	int intena;
-// 	proc *p = myproc();
-//
-// 	if(!holding(&ptable.lock))
-// 		panic("sched ptable.lock");
-// 	if(mycpu()->ncli != 1)
-// 		panic("sched locks");
-// 	if(p->state == RUNNING)
-// 		panic("sched running");
-// 	if(interrupts_enabled())
-// 		panic("sched interruptible");
-// 	intena = mycpu()->intena;
-// 	swtch(&p->context, mycpu()->scheduler);
-// 	mycpu()->intena = intena;
-// }
+	int intena;
+	proc *p = myproc();
+
+	if(!holding(&ptable.lock))
+		panic("sched ptable.lock");
+	if(mycpu()->ncli != 1)
+		panic("sched locks");
+	if(p->state == RUNNING)
+		panic("sched running");
+	if(interrupts_enabled())
+		panic("sched interruptible");
+	intena = mycpu()->intena;
+	swtch(&p->context, mycpu()->scheduler);
+	mycpu()->intena = intena;
+}
 
 // Give up the CPU for one scheduling round.
-// void
-// yield(void)
-// {
-// 	acquire(&ptable.lock);  //DOC: yieldlock
-// 	myproc()->state = RUNNABLE;
-// 	sched();
-// 	release(&ptable.lock);
+void
+yield(void)
+{
+	acquire(&ptable.lock);  //DOC: yieldlock
+	myproc()->state = RUNNABLE;
+	sched();
+	release(&ptable.lock);
 }
 
 // A fork child's very first scheduling by scheduler()

@@ -63,18 +63,18 @@ sys_dup(void)
   filedup(f);
   return fd;
 }
-//
-// int
-// sys_read(void)
-// {
-//   file *f;
-//   int n;
-//   char *p;
-//
-//   if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
-//     return -1;
-//   return fileread(f, p, n);
-// }
+
+int
+sys_read(void)
+{
+  file *f;
+  int n;
+  char *p;
+
+  if(argfd(0, 0, &f) < 0 || argint(2, &n) < 0 || argptr(1, &p, n) < 0)
+    return -1;
+  return fileread(f, p, n);
+}
 
 int
 sys_write(void)
@@ -88,30 +88,30 @@ sys_write(void)
   return filewrite(f, p, n);
 }
 
-// int
-// sys_close(void)
-// {
-//   int fd;
-//   file *f;
-//
-//   if(argfd(0, &fd, &f) < 0)
-//     return -1;
-//   myproc()->ofile[fd] = 0;
-//   fileclose(f);
-//   return 0;
-// }
-//
-// int
-// sys_fstat(void)
-// {
-//   file *f;
-//   stat *st;
-//
-//   if(argfd(0, 0, &f) < 0 || argptr(1, (void*)&st, sizeof(*st)) < 0)
-//     return -1;
-//   return filestat(f, st);
-// }
-//
+int
+sys_close(void)
+{
+  int fd;
+  file *f;
+
+  if(argfd(0, &fd, &f) < 0)
+    return -1;
+  myproc()->ofile[fd] = 0;
+  fileclose(f);
+  return 0;
+}
+
+int
+sys_fstat(void)
+{
+  file *f;
+  struct stat *st;
+
+  if(argfd(0, 0, &f) < 0 || argptr(1, (void*)&st, sizeof(*st)) < 0)
+    return -1;
+  return filestat(f, st);
+}
+
 // // Create the path new as a link to the same inode as old.
 // int
 // sys_link(void)
@@ -402,6 +402,7 @@ sys_exec(void)
   if(argstr(0, &path) < 0 || argint(1, (int*)&uargv) < 0){
     return -1;
   }
+
   memset(argv, 0, sizeof(argv));
   for(i=0;; i++){
     if(i >= array_len(argv))

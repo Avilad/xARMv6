@@ -437,7 +437,7 @@ itrunc(inode *ip)
 // Copy stat information from inode.
 // Caller must hold ip->lock.
 void
-stati(inode *ip, stat *st)
+stati(inode *ip, struct stat *st)
 {
   st->dev = ip->dev;
   st->ino = ip->inum;

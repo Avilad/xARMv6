@@ -2,6 +2,8 @@
 #define USER_H
 
 #include "../types.h"
+#include "../fcntl.h"
+#include "../fs.h"
 
 struct stat;
 struct rtcdate;

@@ -53,7 +53,7 @@ mpmain(void)
   cprintf("cpu%d: starting %d\n", cpuid(), cpuid());
 
 	//---Generic timer interrupts initialization
-	timer_init();
+	// timer_init();
 
 	// enable_interrupts();
 

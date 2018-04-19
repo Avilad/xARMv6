@@ -81,7 +81,7 @@ fileclose(file *f)
 
 // Get metadata about file f.
 int
-filestat(file *f, stat *st)
+filestat(file *f, struct stat *st)
 {
   if(f->type == FD_INODE){
     ilock(f->ip);

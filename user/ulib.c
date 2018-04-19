@@ -32,6 +32,16 @@ strlen(char *s)
   return n;
 }
 
+void*
+memset(void* destination, int val, uint count)
+{
+	uchar* dest = (uchar*)destination;
+	while (count-- != 0) {
+		*dest++ = (uchar)val;
+	}
+	return destination;
+}
+
 char*
 strchr(const char *s, char c)
 {

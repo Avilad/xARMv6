@@ -37,7 +37,7 @@ pde_t* walkpgdir(pde_t* pgdir, const void* vaddr) {
 // Set basic identity mappings, enable MMU, free pages
 void vm_init() {
 	// Create the kernel's page table
-	uint* kpgdir = SECTION_ROUND_UP(kernel_end);
+	kpgdir = SECTION_ROUND_UP(kernel_end);
   // (uint*)((uint)(kernel_end + 0x4000) & ~0x3FFF);
   // (uint*)(PHYSTOP - MB);
 	// Identity map physical memory
@@ -275,7 +275,7 @@ copyuvm(pde_t *pgdir, uint sz)
 
   if((d = setupkvm()) == 0)
     return 0;
-  for(i = 0; i < sz; i += MB){
+  for(i = USERBASE; i < USERBASE + sz; i += MB){
     if((pde = walkpgdir(pgdir, (void *) i)) == 0)
       panic("copyuvm: pte should exist");
     if(!(*pde & INVALID_SECTION_MASK))
@@ -283,8 +283,8 @@ copyuvm(pde_t *pgdir, uint sz)
     pa = PHYS_SECTION_FROM_DESC(*pde);
     if((mem = kalloc()) == 0)
       goto bad;
-    memmove(mem, (char*)pa, MB);
-    mmap(d, (void*)i, pa, 1);
+    memmove(mem, pa, MB);
+    mmap(d, (char *)i, mem, 1);
   }
   return d;
 

@@ -1,10 +1,5 @@
-// #include "types.h"
-// #include "x86.h"
-// #include "defs.h"
-// #include "date.h"
-// #include "param.h"
-// #include "memlayout.h"
-// #include "mmu.h"
+#include "types.h"
+#include "memlayout.h"
 #include "proc.h"
 #include "syscall.h"
 
@@ -56,7 +51,7 @@ sys_sbrk(void)
 
   if(argint(0, &n) < 0)
     return -1;
-  addr = myproc()->sz;
+  addr = myproc()->sz + USERBASE;
   if(growproc(n) < 0)
     return -1;
   return addr;
