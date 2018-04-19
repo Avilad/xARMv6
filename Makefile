@@ -43,7 +43,7 @@ LD = $(CROSSCOMPILE)ld
 OBJCOPY = $(CROSSCOMPILE)objcopy
 OBJDUMP = $(CROSSCOMPILE)objdump
 
-CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O0 -Wall -c -mcpu=cortex-a7
+CFLAGS = -std=gnu99 -nostdlib -fno-pic -static -fno-builtin -fno-strict-aliasing -ggdb -O3 -Wall -c -mcpu=cortex-a7
 LDFLAGS =
 ASFLAGS = -fno-pic -c
 
@@ -121,6 +121,8 @@ UPROGS=\
 	_usertests\
 	_wc\
 	_zombie\
+	_sched_test\
+	_forktree\
 
 build/fs.img: mkfs $(UPROGS)
 	cd build/user;\

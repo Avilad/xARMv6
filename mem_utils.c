@@ -4,9 +4,27 @@
 
 //Sets a region of memory
 void* memset(void* destination, int val, uint count) {
-	uchar* dest = (uchar*)destination;
-	while (count-- != 0) {
-		*dest++ = (uchar)val;
+	if (count % 4) {
+    count /= 4;
+    val = val & 0xFF;
+    val = val | val << 8 | val << 16 | val << 24;
+    int* dest = (int*)destination;
+  	while (count-- != 0) {
+  		*dest++ = val;
+  	}
+  } else if (count % 2) {
+    count /= 2;
+    val = val & 0xFF;
+    val = val | val << 8;
+    ushort* dest = (ushort*)destination;
+  	while (count-- != 0) {
+  		*dest++ = (ushort)val;
+  	}
+  } else {
+		uchar* dest = (uchar*)destination;
+		while (count-- != 0) {
+			*dest++ = (uchar)val;
+		}
 	}
 	return destination;
 }

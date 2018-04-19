@@ -8,6 +8,7 @@
 #include "proc.h"
 #include "uart.h"
 #include "spinlock.h"
+#include "timer.h"
 
 #define CORE0_IRQ_SOURCE  MEM_REG(CONTROL_BASE + 0x60)
 
@@ -53,6 +54,8 @@ static void dump_trapframe(trapframe* tf) {
 	        tf->pc);
 }
 
+void trap_common(trapframe *tf, int is_tick);
+
 void undefined_instruction_handler(trapframe* tf) {
 	char buf[1024];
 	dump_trapframe(tf);
@@ -64,6 +67,7 @@ void software_interrupt_handler(trapframe* tf) {
 
 	myproc()->tf = tf;
 	syscall(syscall_id);
+	trap_common(tf, 0);
 }
 
 void prefetch_abort_handler(trapframe* tf) {
@@ -88,15 +92,48 @@ void reserved_exception_handler() {
 }
 
 void irq_handler(trapframe *tf) {
+	int is_tick = 0;
+
 	if (mmio_read(CORE0_IRQ_SOURCE) & (1 << 8)) {
 		uartintr();
 	} else {
 		// TIMER INTERRUPT
-		cprintf("\ntimer interrupt called\n");
-		set_cntp_tval(100000000);
+
+		// Schedule the next timer interrupt
+		timer_schedule();
+
+		// Interrupt is due to a timer tick
+		is_tick = 1;
+
+		// Increment ticks
+		if(cpuid() == 0){
+      acquire(&tickslock);
+      ticks++;
+      wakeup(&ticks);
+      release(&tickslock);
+    }
 	}
 
-  // enable_interrupts();
+	trap_common(tf, is_tick);
+}
+
+void trap_common(trapframe *tf, int is_tick) {
+	proc *curproc = myproc();
+
+	if(curproc && curproc->killed && (tf->cpsr & PSR_MODE_MASK) == PSR_USER_MODE) {
+		exit();
+	}
+
+  // Force process to give up CPU on clock tick.
+  // If interrupts were on while locks held, would need to check nlock.
+  if(curproc && curproc->state == RUNNING && is_tick) {
+		yield();
+
+	  // Check if the process has been killed since we yielded
+	  if(curproc && curproc->killed && (tf->cpsr & PSR_MODE_MASK) == PSR_USER_MODE) {
+			exit();
+		}
+	}
 }
 
 void fiq_handler() {

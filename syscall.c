@@ -79,11 +79,6 @@ argstr(int n, char **pp)
   return fetchstr(addr, pp);
 }
 
-int sys_test() {
-	cprintf("Called test syscall\n");
-	return 0;
-}
-
 extern int sys_chdir(void);
 extern int sys_close(void);
 extern int sys_dup(void);
@@ -107,7 +102,6 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 
 static syscall_t syscalls[] = {
-	//[0]           sys_test,
   [SYS_fork]    sys_fork,
   [SYS_exit]    sys_exit,
   [SYS_wait]    sys_wait,
@@ -132,14 +126,13 @@ static syscall_t syscalls[] = {
 };
 
 void syscall(uint syscall_id) {
+  struct proc *curproc = myproc();
+
 	if (syscall_id < array_len(syscalls)) {
-    syscall_t handler = syscalls[syscall_id];
-    if (handler) {
-      myproc()->tf->r[0] = handler();
-    } else {
-      cprintf("Unimplemented syscall #%d\n", syscall_id);
-    }
+    curproc->tf->r[0] = syscalls[syscall_id]();
 	} else {
-		cprintf("Unknown syscall %d.\n", syscall_id);
+		cprintf("%d %s: unknown sys call %d\n",
+            curproc->pid, curproc->name, syscall_id);
+    curproc->tf->r[0] = -1;
 	}
 }

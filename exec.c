@@ -105,7 +105,7 @@ exec(char *path, char **argv)
   curproc->tf->sp = sp;
   switchuvm(curproc);
   freevm(oldpgdir);
-  return 0;
+  return argc; // lol hack
 
  bad:
   if(pgdir)

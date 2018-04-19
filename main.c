@@ -36,6 +36,10 @@ void kmain(void) {
 	//---Initialize process table
   pinit();
 
+	//---Initialize system timer
+	timer_init();
+
+	//---Initialize file system
 	binit();    // buffer cache
   fileinit(); // file table
   ideinit();  // disk
@@ -52,12 +56,9 @@ mpmain(void)
 {
   cprintf("cpu%d: starting %d\n", cpuid(), cpuid());
 
-	//---Generic timer interrupts initialization
-	// timer_init();
+	//---Schedule the first timer tick
+	timer_schedule();
 
-	// enable_interrupts();
-
-  // idtinit();       // load idt register
 	// @multithreading XV6 uses xchg() for below
   mycpu()->started = 1; // tell startothers() we're up
   scheduler();     // start running processes

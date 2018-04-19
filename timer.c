@@ -12,6 +12,13 @@
 // Enable IRQ interrupts from CNTPS (timer 0)
 #define CNTPS_IRQ 0x1
 
+// Timer runs at 62.5 MHz, we want 100Hz
+#define TIMER_INTERVAL 625000
+
+void timer_schedule() {
+	set_cntp_tval(TIMER_INTERVAL);
+}
+
 void timer_init() {
 	enable_timer();
 
@@ -20,7 +27,4 @@ void timer_init() {
   // mmio_write(CORE1_TIMER_IRQCNTL, CNTPS_IRQ);
   // mmio_write(CORE2_TIMER_IRQCNTL, CNTPS_IRQ);
   // mmio_write(CORE3_TIMER_IRQCNTL, CNTPS_IRQ);
-
-  // Interrupt in 100000000 timer ticks
-  set_cntp_tval(100000000);
 }
