@@ -26,6 +26,7 @@ KERN_OBJS = entry.o         \
 						file.o          \
 						pipe.o          \
 						fs.o						\
+						utils.o
 
 QEMU = qemu-system-arm-2.11.0
 

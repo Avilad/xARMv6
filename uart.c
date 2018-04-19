@@ -3,6 +3,8 @@
 #include "types.h"
 #include "utils.h"
 
+void uart0_send_char(char);
+
 // GPIO
 // GPIO base is at 0x3F200000, aka PERI_BASE + 0x200000
 // https://www.raspberrypi.org/app/uploads/2012/02/BCM2835-ARM-Peripherals.pdf, page 90
@@ -157,6 +159,11 @@ void uart0_init() {
 
 	// Enable UART0, receive & transfer part of UART.
 	mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
+
+	// Announce that we're here.
+	char *p;
+	for(p="xv6...\n"; *p; p++)
+	  uart0_send_char(*p);
 #endif
 }
 

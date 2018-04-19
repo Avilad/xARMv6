@@ -45,25 +45,6 @@ static void dump_trapframe(trapframe* tf) {
 	        tf->pc);
 }
 
-// static char* mode_names[] = {
-// 	[0] "user",
-// 	[1] "FIQ",
-// 	[2] "IRQ",
-// 	[3] "supervisor",
-// 	[7] "abort",
-// 	[11] "undefined",
-// 	[15] "system"
-// };
-//
-// static void print_cpsr(uint cpsr) {
-// 	cprintf("cpsr = 0x%x\nflags = %s%s%s%s\nmode = %s\n\n", cpsr,
-// 	        cpsr & PSR_ASNYC_ABORT_MASK ? "A" : "a",
-// 	        cpsr & PSR_IRQ_MASK 				? "I" : "i",
-// 	        cpsr & PSR_FIQ_MASK 				? "F" : "f",
-// 	        cpsr & PSR_THUMB_STATE 			? "T" : "t",
-// 	        mode_names[(cpsr & PSR_MODE_MASK) - 0x10]);
-// }
-
 void undefined_instruction_handler(trapframe* tf) {
 	char buf[1024];
 	dump_trapframe(tf);
@@ -101,9 +82,12 @@ void reserved_exception_handler() {
 void irq_handler(trapframe *tf) {
 	set_cntp_tval(100000000);
 
-	cprintf("TIMER INTERRUPT CALLED\n");
+	cprintf("Timer interrupt handler called\n");
+	print_cpsr();
 
-  enable_interrupts();
+  	enable_interrupts();
+
+	print_cpsr();
 }
 
 void fiq_handler() {

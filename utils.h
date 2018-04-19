@@ -30,4 +30,6 @@ void* zero(void* mem, uint size);
 
 #define zero_section(section) zero_region((char *)(section), ((char *)(section)) + MB)
 
+void print_cpsr();
+
 #endif

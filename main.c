@@ -16,40 +16,20 @@ extern char linker_bss_end[];
 extern char vectors[];
 extern char vectors_end[];
 
-// static char* mode_names[] = {
-// 	[0] "user",
-// 	[1] "FIQ",
-// 	[2] "IRQ",
-// 	[3] "supervisor",
-// 	[7] "abort",
-// 	[11] "undefined",
-// 	[15] "system"
-// };
-//
-// static void print_cpsr() {
-// 	uint cpsr = get_cpsr();
-// 	cprintf("cpsr = 0x%x\nflags = %s%s%s%s\nmode = %s\n\n", cpsr,
-// 	        cpsr & PSR_ASNYC_ABORT_MASK ? "A" : "a",
-// 	        cpsr & PSR_IRQ_MASK 				? "I" : "i",
-// 	        cpsr & PSR_FIQ_MASK 				? "F" : "f",
-// 	        cpsr & PSR_THUMB_STATE 			? "T" : "t",
-// 	        mode_names[(cpsr & PSR_MODE_MASK) - 0x10]);
-// }
-
 static void mpmain(void)  __attribute__((noreturn));
 
 void kmain(void) {
 	//---Zero BSS section
 	zero_region(linker_bss_start, linker_bss_end);
 
+	//---UART initialization
+	uart0_init();
+
 	//---Initialize MMU
 	vm_init();
 
 	//---Setup interrupt vector table
 	memcpy_region(VECTOR_TABLE_START, vectors, vectors_end);
-
-	//---UART initialization
-	uart0_init();
 
 	//---Initialize process table
   pinit();
@@ -70,8 +50,12 @@ mpmain(void)
 {
   cprintf("cpu%d: starting %d\n", cpuid(), cpuid());
 
+  print_cpsr();
+
 	//---Generic timer interrupts initialization
 	timer_init();
+
+	print_cpsr();
 
   // idtinit();       // load idt register
 	// @multithreading XV6 uses xchg() for below
