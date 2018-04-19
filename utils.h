@@ -29,4 +29,6 @@ void* zero(void* mem, uint size);
 
 #define zero_section(section) zero_region((void *)(section), ((void *)(section)) + MB)
 
+void print_cpsr();
+
 #endif

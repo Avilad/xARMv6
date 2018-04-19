@@ -11,7 +11,7 @@ start:
 
 // for(;;) exit();
 exit:
-  svc #SYS_exit
+  #svc #SYS_exit
   b exit
 
 // char init[] = "/init\0";

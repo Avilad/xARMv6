@@ -73,10 +73,26 @@ void vm_init() {
 				 : "r"(&kpgdir)
 				 : "memory", "r0", "r1");
 
+	uint progress = 0;
+	uint i = 0;
+	cprintf("Initializing memory: [");
+
 	// Put every section after kpgdir up to PHYSTOP on the free list
 	for(uint paddr = USERBOTTOM; paddr < PHYSTOP; paddr += MB) {
+		for(i = 0; i < (progress / 10); i++) {
+			cprintf("#");
+		}
+		for(i = progress / 10; i < 25; i++) {
+			cprintf(" ");
+		}
+		cprintf("]");
+		for(i = 0; i < 26; i++) {
+			cprintf("\b");
+		}
+		progress++;
 		kfree((char*)paddr);
 	}
+	cprintf("\n");
 }
 
 // Set the page dir to new_pgdir in hardware
