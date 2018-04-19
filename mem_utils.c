@@ -84,6 +84,13 @@ int strncmp(const char *p, const char *q, uint size) {
   return (uchar)*p - (uchar)*q;
 }
 
+int strlen(const char *s) {
+  int n;
+  for(n = 0; s[n]; n++)
+    ;
+  return n;
+}
+
 //Zero a region of memory
 //does not check mem_end >= mem_start
 void* zero_region(void* mem_start, void* mem_end) {

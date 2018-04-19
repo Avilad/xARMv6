@@ -15,5 +15,7 @@ void* kalloc(void);
 void inituvm(pde_t*, char*, uint);
 int loaduvm(pde_t*, char*, inode*, uint, uint);
 int allocuvm(pde_t*, uint, uint);
+void freevm(pde_t*);
+int copyout(pde_t*, void*, void*, uint);
 
 #endif // VM_H

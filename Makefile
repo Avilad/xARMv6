@@ -87,16 +87,33 @@ kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld build/fs.img.o
 	$(OBJDUMP) -S kernel.elf > kernel.asm
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
+# ULIB = ulib.o usys.o printf.o umalloc.o
+ULIB = usys.o
+
+build/user/usys.o: user/usys.S
+	mkdir -p build/user
+	$(CC) $< $(ASFLAGS) -o $@
+
+build/user/%.o: user/%.c
+	mkdir -p build/user
+	$(CC) $< $(CFLAGS) -o $@
+
+_%: build/user/%.o $(addprefix build/user/,$(ULIB))
+	$(LD) $(LDFLAGS) -N -e main -Ttext 80000000 -o build/user/$@ $^
+
 # Filesystem scripts
 mkfs: mkfs.c fs.h
 	gcc -Werror -Wall -o mkfs mkfs.c
 
-UPROGS=
+UPROGS=\
+	_init\
 
-fs.img: mkfs README.org $(UPROGS)
-	./mkfs fs.img README.org $(UPROGS)
+build/fs.img: mkfs $(UPROGS)
+	cd build/user;\
+	../../mkfs ../../fs.img $(UPROGS)
 
-build/fs.img.o: fs.img
+build/fs.img.o: build/fs.img
+	cd build
 	$(LD) -r -b binary fs.img -o build/fs.img.o
 	rm -f fs.img
 

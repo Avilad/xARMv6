@@ -5,9 +5,9 @@
 
 .globl start
 start:
-  @ ldr r0, =init
-  @ ldr r1, =argv
-  @ svc #SYS_exec
+  ldr r0, =init
+  ldr r1, =argv
+  svc #SYS_exec
 
 // for(;;) exit();
 exit:

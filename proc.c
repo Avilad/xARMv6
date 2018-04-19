@@ -111,7 +111,7 @@ userinit(void)
 	p->sz = MB;
 	memset(p->tf, 0, sizeof(trapframe));
 	p->tf->cpsr = PSR_USER_MODE;
-	p->tf->sp = MB;
+	p->tf->sp = USERBASE + MB;
 	p->tf->pc = USERBASE;
 
 

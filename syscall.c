@@ -79,10 +79,10 @@ argstr(int n, char **pp)
   return fetchstr(addr, pp);
 }
 
-// int sys_test() {
-// 	cprintf("Called test syscall\n");
-// 	return 0;
-// }
+int sys_test() {
+	cprintf("Called test syscall\n");
+	return 0;
+}
 
 extern int sys_chdir(void);
 extern int sys_close(void);
@@ -107,14 +107,14 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 
 static syscall_t syscalls[] = {
-	// [SYS_test]    sys_test,
+	[0]           sys_test,
 	[SYS_exit]    sys_exit,
-	// [SYS_exec]    sys_exec,
+	[SYS_exec]    sys_exec,
 };
 
 void syscall(uint syscall_id) {
 	if (syscall_id < array_len(syscalls)) {
-		syscalls[syscall_id]();
+		myproc()->tf->r[0] = syscalls[syscall_id]();
 	} else {
 		cprintf("Unknown syscall %u.\n", syscall_id);
 	}

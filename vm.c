@@ -30,8 +30,7 @@ pde_t* kpgdir;
 
 // Get the address of the PTE in pgdir that corresponds to vaddr
 pde_t* walkpgdir(pde_t* pgdir, const void* vaddr) {
-	pde_t* descriptor = &pgdir[PAGE_DIR_INDEX_OF(vaddr)];
-	return descriptor;
+	return &pgdir[PAGE_DIR_INDEX_OF(vaddr)];
 }
 
 // Set basic identity mappings, enable MMU, free pages
@@ -74,7 +73,7 @@ void vm_init() {
 				 : "memory", "r0", "r1");
 
 	// Put every section after kpgdir up to PHYSTOP on the free list
-	for(uint paddr = USERBOTTOM; paddr < PHYSTOP; paddr += MB) {
+	for(uint paddr = KERNTOP; paddr < PHYSTOP; paddr += MB) {
 		kfree((char*)paddr);
 	}
 }
@@ -131,7 +130,7 @@ void kfree(char* section) {
 	// Sanity checks
 	if (!IS_SECTION_ALIGNED(section)) { panic("Tried to free non-section aligned address"); }
 	if ((uint)section >= PHYSTOP) { panic("Tried to free above top of physical memory"); }
-	if ((uint)section < USERBOTTOM) { panic("Tried to free where the kernel lives"); }
+	if ((uint)section < KERNTOP) { panic("Tried to free where the kernel lives"); }
 
 	// Clear out the page
 	zero_region(section, section + MB);
@@ -171,14 +170,14 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
 {
   uint i, n;
   void *pa;
-  pde_t *pde;
+  pde_t descriptor;
 
   if((uint)addr % MB != 0)
     panic("loaduvm: addr must be page aligned");
   for(i = 0; i < sz; i += MB){
-    if((pde = walkpgdir(pgdir, addr+i)) == 0)
+    if((descriptor = *walkpgdir(pgdir, addr+i)) == 0)
       panic("loaduvm: address should exist");
-    pa = PHYS_SECTION_FROM_DESC(*pde);
+    pa = PHYS_SECTION_FROM_DESC(descriptor);
     if(sz - i < MB)
       n = sz - i;
     else
@@ -189,14 +188,14 @@ loaduvm(pde_t *pgdir, char *addr, struct inode *ip, uint offset, uint sz)
   return 0;
 }
 
-// Increases the size of process by mapping pages until it has new_vtop memory
+// Increases the size of process by mapping pages until its address space reaches new_vtop
 int allocuvm(pde_t *pgdir, uint old_vtop, uint new_vtop) {
 	// If we already have enough memory, just return
 	if (new_vtop <= old_vtop) { return old_vtop; }
 	// if (new_vtop - MB > old_vtop) { return new_vtop; }
 
 	// Map sections until the top of our memory is at least at new_vtop
-	void* virt_section = SECTION_ROUND_UP(old_vtop);
+	void* virt_section = SECTION_ROUND_UP(old_vtop - 1);
 	while(1) {
 		char* phys_section = kalloc();
 		mmap(pgdir, virt_section, phys_section, 1);
@@ -206,18 +205,44 @@ int allocuvm(pde_t *pgdir, uint old_vtop, uint new_vtop) {
 	return new_vtop;
 }
 
+// Deallocate user pages to bring the process size from oldsz to
+// newsz.  oldsz and newsz need not be page-aligned, nor does newsz
+// need to be less than oldsz.  oldsz can be larger than the actual
+// process size.  Returns the new process size.
+int
+deallocuvm(pde_t *pgdir, uint old_vtop, uint new_vtop)
+{
+  if(new_vtop >= old_vtop)
+    return old_vtop;
+
+  for(char *a = SECTION_ROUND_UP(new_vtop - 1); a - 1 < (char *)old_vtop; a += MB){
+    pde_t *pde = walkpgdir(pgdir, a);
+    if (*pde & INVALID_SECTION_MASK) {
+      kfree(PHYS_SECTION_FROM_DESC(*pde));
+    }
+  }
+  return new_vtop;
+}
+
+// Free a page table and all the physical memory pages
+// in the user part.
+void
+freevm(pde_t *pgdir)
+{
+  if(pgdir == 0)
+    panic("freevm: no pgdir");
+  deallocuvm(pgdir, 0xFFFFFFFF, USERBASE);
+  kfree((char*)pgdir);
+}
+
 
 // Copy len bytes from psrc to wherever vdst actually points in pgdir
 // 1 on success, 0 on failure
 int copyout(pde_t *pgdir, void* vdst, void* psrc, uint len) {
-	pde_t* descriptor = walkpgdir(pgdir, vdst);
+	pde_t descriptor = *walkpgdir(pgdir, vdst);
 	void* section_base = PHYS_SECTION_FROM_DESC(descriptor);
 	uint section_offset = SEC_OFFSET_FROM_VADDR(vdst);
 	char* pdst = (char*)(section_base + section_offset);
 	memcpy(pdst, psrc, len);
 	return 1;
-}
-
-void freevm(pde_t *pgdir) {
-
 }

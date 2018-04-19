@@ -72,8 +72,8 @@ void undefined_instruction_handler(trapframe* tf) {
 
 void software_interrupt_handler(trapframe* tf) {
 	uint syscall_id = ((uint *)tf->pc)[-1] & 0xFFFFFF;
-	myproc()->tf = tf;
 
+	myproc()->tf = tf;
 	syscall(syscall_id);
 }
 

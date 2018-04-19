@@ -9,12 +9,12 @@
 #define PAGE_DIR_INDEX_OF(vaddr) (((uint)vaddr) / MB)
 
 #define PHYS_SECTION_FROM_DESC(desc) (void*)(((uint)desc) & 0xFFF00000)
-#define SEC_OFFSET_FROM_VADDR(vaddr) (((uint)vaddr) & 0x00000FFF)
+#define SEC_OFFSET_FROM_VADDR(vaddr) (((uint)vaddr) & 0x000FFFFF)
 
 #define USERBASE 0x80000000
-#define USERSPACE(a) ((void *)((uint)(a) + USERBASE))
+#define USERSPACE(a) ((char *)((uint)(a) + USERBASE))
 
 #define PHYSTOP (256*MB)
-#define USERBOTTOM ((uint)kpgdir + MB)
+#define KERNTOP ((uint)kpgdir + MB)
 
 #endif // MEMLAYOUT_H
