@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "vm.h"
 #include "swtch.h"
+#include "console.h"
 
 #define WBWA_CACHEABLE 0x4 | 0x8 | 0x5000
 #define USE_SECTIONS 0x2
@@ -42,7 +43,7 @@ void vm_init() {
 	// Identity map physical memory
 	mmap(kpgdir, (void*)0, (void*)0, PHYSTOP / MB);
 	// Identity map peripherals
-	mmap(kpgdir, SECTION_ROUND_DOWN(PERI_BASE), SECTION_ROUND_DOWN(PERI_BASE), 32);
+	mmap(kpgdir, SECTION_ROUND_DOWN(PERI_BASE), SECTION_ROUND_DOWN(PERI_BASE), 32);;
 
 	// Flush caches and enable MMU
 	asm volatile("mov r0, $4;"

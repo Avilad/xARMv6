@@ -89,7 +89,7 @@ kernel.elf: $(addprefix build/,$(KERN_OBJS)) kernel.ld build/fs.img.o
 	$(OBJDUMP) -t kernel.elf | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > kernel.sym
 
 # ULIB = ulib.o usys.o printf.o umalloc.o
-ULIB = usys.o
+ULIB = usys.o printf.o
 
 build/user/usys.o: user/usys.S
 	mkdir -p build/user

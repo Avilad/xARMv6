@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "console.h"
 #include "arm_asm_intrinsics.h"
 
 static char* mode_names[] = {

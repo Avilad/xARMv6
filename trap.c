@@ -2,9 +2,13 @@
 #include "arm.h"
 #include "utils.h"
 #include "arm_asm_intrinsics.h"
+#include "mem_mapped_io.h"
 #include "console.h"
 #include "syscall.h"
 #include "proc.h"
+#include "uart.h"
+
+#define CORE0_IRQ_SOURCE  MEM_REG(CONTROL_BASE + 0x60)
 
 static void dump_trapframe(trapframe* tf) {
 	cprintf("sp = 0x%x\n"
@@ -80,14 +84,15 @@ void reserved_exception_handler() {
 }
 
 void irq_handler(trapframe *tf) {
-	set_cntp_tval(100000000);
+	if (mmio_read(CORE0_IRQ_SOURCE) & (1 << 8)) {
+		uartintr();
+	} else {
+		// TIMER INTERRUPT
+		cprintf("\ntimer interrupt called\n");
+		set_cntp_tval(100000000);
+	}
 
-	cprintf("Timer interrupt handler called\n");
-	print_cpsr();
-
-  	enable_interrupts();
-
-	print_cpsr();
+  // enable_interrupts();
 }
 
 void fiq_handler() {

@@ -177,7 +177,7 @@ userinit(void)
 // 	*np->tf = *curproc->tf;
 //
 // 	// Clear %eax so that fork returns 0 in the child.
-// 	np->tf->eax = 0;
+// 	np->tf->r[0] = 0;
 //
 // 	for(i = 0; i < NOFILE; i++)
 // 		if(curproc->ofile[i])
@@ -473,35 +473,27 @@ kill(int pid)
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
-// void
-// procdump(void)
-// {
-// 	static char *states[] = {
-// 		[UNUSED]    "unused",
-// 		[EMBRYO]    "embryo",
-// 		[SLEEPING]  "sleep ",
-// 		[RUNNABLE]  "runble",
-// 		[RUNNING]   "run   ",
-// 		[ZOMBIE]    "zombie"
-// 	};
-// 	int i;
-// 	proc *p;
-// 	char *state;
-// 	uint pc[10];
-//
-// 	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-// 		if(p->state == UNUSED)
-// 			continue;
-// 		if(p->state >= 0 && p->state < array_len(states) && states[p->state])
-// 			state = states[p->state];
-// 		else
-// 			state = "???";
-// 		cprintf("%d %s %s", p->pid, state, p->name);
-// 		if(p->state == SLEEPING){
-// 			getcallerpcs((uint*)p->context->ebp+2, pc);
-// 			for(i=0; i<10 && pc[i] != 0; i++)
-// 				cprintf(" %p", pc[i]);
-// 		}
-// 		cprintf("\n");
-// 	}
-// }
+void
+procdump(void)
+{
+	static char *states[] = {
+		[UNUSED]    "unused",
+		[EMBRYO]    "embryo",
+		[SLEEPING]  "sleep ",
+		[RUNNABLE]  "runble",
+		[RUNNING]   "run   ",
+		[ZOMBIE]    "zombie"
+	};
+	proc *p;
+	char *state;
+
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+		if(p->state == UNUSED)
+			continue;
+		if(p->state >= 0 && p->state < array_len(states) && states[p->state])
+			state = states[p->state];
+		else
+			state = "???";
+		cprintf("%d %s %s\n", p->pid, state, p->name);
+	}
+}

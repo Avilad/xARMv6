@@ -2,8 +2,9 @@
 #include "mem_mapped_io.h"
 #include "types.h"
 #include "utils.h"
+#include "console.h"
 
-void uart0_send_char(char);
+void uartputc(int);
 
 // GPIO
 // GPIO base is at 0x3F200000, aka PERI_BASE + 0x200000
@@ -73,7 +74,13 @@ void uart0_send_char(char);
 #define UART0_IMSC      MEM_REG(PERI_BASE+0x00201038)
 #define UART0_ICR       MEM_REG(PERI_BASE+0x00201044)
 
-void uart0_init() {
+//bcm2835 interrupt controller
+#define UART_INT 57
+#define IRQ_ENABLE_2 MEM_REG(PERI_BASE + 0xB214)
+//bcm2836 interrupt controller
+#define GPU_INTERRUPT_ROUTE MEM_REG(CONTROL_BASE + 0x0C)
+
+void uartinit() {
 #if 0
 	// Temporarily disable UART0
 	mmio_write(UART0_CR, 0);
@@ -150,44 +157,56 @@ void uart0_init() {
 	// Fractional part register = (.627 * 64) + 0.5 = 40.6 = ~40.
 	mmio_write(UART0_FBRD, 40);
 
-	// Enable FIFO & 8 bit data transmissio (1 stop bit, no parity).
-	mmio_write(UART0_LCRH, (1 << 4) | (1 << 5) | (1 << 6));
+	// Enable z8 bit data transmissio (1 stop bit, no parity).
+	mmio_write(UART0_LCRH, (1 << 5) | (1 << 6));
 
 	// Mask all interrupts.
-	mmio_write(UART0_IMSC, (1 << 1) | (1 << 4) | (1 << 5) | (1 << 6) |
-	                       (1 << 7) | (1 << 8) | (1 << 9) | (1 << 10));
+	// mmio_write(UART0_IMSC, 0);
+	mmio_write(UART0_IMSC, (1 << 4));
 
 	// Enable UART0, receive & transfer part of UART.
 	mmio_write(UART0_CR, (1 << 0) | (1 << 8) | (1 << 9));
 
+	// Enable bcm2835 interrupt routing
+	mmio_write(IRQ_ENABLE_2, 1 << (UART_INT - 32));
+
+	// Enable bcm2836 interrupt routing
+	mmio_write(GPU_INTERRUPT_ROUTE, 0);
+
 	// Announce that we're here.
 	char *p;
 	for(p="xv6...\n"; *p; p++)
-	  uart0_send_char(*p);
+	  uartputc(*p);
 #endif
 }
 
 // Pushes a byte through the UART port
-void uart0_send_char(char data) {
+void uartputc(int data) {
     while(mmio_read(UART0_FR) & UART0_FR_FULL) {}; // Wait until we can send
 	mmio_write(UART0_DR, data);
 	delay(150);
 }
 
-char uart0_get_char() {
-    while (mmio_read(UART0_FR) & UART0_FR_EMPTY) {};
-    char response = (char)mmio_read(UART0_DR);
-    //Always get \n instead of \r
-    return response == '\r' ? '\n' : response;
-}
-
 // Send a null-terminated string
-void uart0_put_str(char* s) {
+void uartputs(int* s) {
 	while (*s) {
 		//\n -> \r\n
 		if (*s == '\n') {
-			uart0_send_char('\r');
+			uartputc('\r');
 		}
-		uart0_send_char(*s++);
+		uartputc(*s++ & 0xFF);
 	}
+}
+
+int uartgetc() {
+    if (mmio_read(UART0_FR) & UART0_FR_EMPTY) {
+			return -1;
+		};
+    return mmio_read(UART0_DR) & 0xFF;
+}
+
+void
+uartintr(void)
+{
+  consoleintr(uartgetc);
 }

@@ -10,7 +10,12 @@ char *argv[] = { "sh", 0 };
 int
 main(void)
 {
-  asm volatile("svc #0");
+  // asm volatile("svc #0");
+
+  // printf(1, "Hello, userspace!\n");
+
+  for (;;)
+    asm volatile("nop");
 
   exit();
   // int pid, wpid;

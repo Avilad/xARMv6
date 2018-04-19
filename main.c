@@ -22,8 +22,10 @@ void kmain(void) {
 	//---Zero BSS section
 	zero_region(linker_bss_start, linker_bss_end);
 
+	consoleinit();   // console hardware
+
 	//---UART initialization
-	uart0_init();
+	uartinit();
 
 	//---Initialize MMU
 	vm_init();
@@ -50,12 +52,10 @@ mpmain(void)
 {
   cprintf("cpu%d: starting %d\n", cpuid(), cpuid());
 
-  print_cpsr();
-
 	//---Generic timer interrupts initialization
 	timer_init();
 
-	print_cpsr();
+	// enable_interrupts();
 
   // idtinit();       // load idt register
 	// @multithreading XV6 uses xchg() for below

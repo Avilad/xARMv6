@@ -110,6 +110,7 @@ static syscall_t syscalls[] = {
 	[0]           sys_test,
 	[SYS_exit]    sys_exit,
 	[SYS_exec]    sys_exec,
+  [SYS_write]   sys_write,
 };
 
 void syscall(uint syscall_id) {

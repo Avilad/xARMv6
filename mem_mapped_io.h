@@ -7,8 +7,8 @@
 #define MEM_REG(a) ((volatile uint*)(a))
 
 //ARM memory mapped IO addresses
-#define PERI_BASE       0x3F000000
-#define CONTROL_BASE    0x40000000
+#define PERI_BASE    0x3F000000
+#define CONTROL_BASE 0x40000000
 
 static inline void mmio_write(volatile uint* reg, uint data) {
 	*reg = data;
